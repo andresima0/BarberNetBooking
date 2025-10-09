@@ -1,0 +1,24 @@
+@model BarberNetBooking.Models.Service
+
+<div class="mb-3">
+    <label asp-for="Name" class="form-label">Nome do Serviço</label>
+    <input asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Price" class="form-label">Preço</label>
+    <input asp-for="Price" class="form-control" />
+    <span asp-validation-for="Price" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="DurationMinutes" class="form-label">Duração (minutos)</label>
+    <input asp-for="DurationMinutes" class="form-control" />
+    <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+</div>
+
+<div class="form-check mb-3">
+    <input asp-for="IsActive" class="form-check-input" />
+    <label asp-for="IsActive" class="form-check-label">Ativo</label>
+</div>

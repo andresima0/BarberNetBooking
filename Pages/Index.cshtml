@@ -1,0 +1,208 @@
+﻿@page
+@model BarberNetBooking.Pages.IndexModel
+@{
+    ViewData["Title"] = "Agendamento";
+}
+
+<!-- 1) Tabela de serviços acima do formulário -->
+<section class="card light">
+    <h2>Serviços & preços</h2>
+    <table class="tbl">
+        <thead>
+            <tr>
+                <th>Serviço</th>
+                <th class="right">Preço</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var s in Model.Services)
+        {
+            <tr>
+                <td>@s.Name</td>
+                <td class="right">R$ @s.Price</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</section>
+
+<!-- 2) Formulário de agendamento abaixo -->
+<section class="card">
+    <h2>Agende seu horário</h2>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">@Model.SuccessMessage</div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    <form method="post" id="bookingForm" class="booking-form">
+        @Html.AntiForgeryToken()
+
+        <div class="grid form-grid">
+            <label class="form-group">
+                Serviço *
+                <select asp-for="Input.ServiceId"
+                        asp-items="Model.ServiceOptions"
+                        id="serviceSelect"
+                        class="form-control"
+                        required>
+                    <option value="">Selecione um serviço</option>
+                </select>
+            </label>
+
+            <label class="form-group">
+                Barbeiro *
+                <select asp-for="Input.BarberId"
+                        asp-items="Model.BarberOptions"
+                        id="barberSelect"
+                        class="form-control"
+                        required>
+                    <option value="">Selecione um barbeiro</option>
+                </select>
+            </label>
+
+            <label class="form-group">
+                Data *
+                <input asp-for="Input.Date"
+                       type="date"
+                       id="dateInput"
+                       class="form-control"
+                       min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                       required />
+            </label>
+
+            <label class="form-group">
+                Horário *
+                <select asp-for="Input.StartTime"
+                        id="timeSelect"
+                        class="form-control"
+                        required
+                        disabled>
+                    <option value="">Primeiro selecione serviço, barbeiro e data</option>
+                </select>
+                <small class="form-text" id="loadingText" style="display:none;">
+                    Carregando horários disponíveis...
+                </small>
+            </label>
+
+            <label class="form-group">
+                E-mail *
+                <input asp-for="Input.CustomerEmail"
+                       type="email"
+                       class="form-control"
+                       placeholder="seuemail@exemplo.com"
+                       required />
+            </label>
+
+            <label class="form-group">
+                Telefone *
+                <input asp-for="Input.CustomerPhone"
+                       type="tel"
+                       class="form-control"
+                       placeholder="(11) 99999-9999"
+                       required />
+            </label>
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary btn-lg"
+                id="submitBtn"
+                disabled>
+            Confirmar agendamento
+        </button>
+
+        <div asp-validation-summary="All" class="errors"></div>
+    </form>
+</section>
+
+@section Scripts {
+<script>
+  const form        = document.getElementById('bookingForm');
+  const serviceSel  = document.getElementById('serviceSelect');
+  const barberSel   = document.getElementById('barberSelect');
+  const dateInput   = document.getElementById('dateInput');
+  const timeSelect  = document.getElementById('timeSelect');
+  const submitBtn   = document.getElementById('submitBtn');
+  const loadingText = document.getElementById('loadingText');
+
+  function getCsrf() {
+    const el = form.querySelector('input[name="__RequestVerificationToken"]');
+    return el ? el.value : '';
+  }
+
+  // Normaliza "08/10/2025" -> "2025-10-08" (pt-BR -> ISO). Mantém ISO se já estiver.
+  function normalizeDate(val) {
+    if (!val) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val; // já está ISO
+    const m = val.match(/^(\d{2})\/(\d{2})\/(\d{4})$/); // dd/MM/yyyy
+    if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+    // fallback via valueAsDate (caso o browser entregue outro formato local)
+    if (dateInput.valueAsDate instanceof Date) {
+      const d = dateInput.valueAsDate;
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    }
+    return val;
+  }
+
+  async function loadAvailableSlots() {
+    const serviceId = serviceSel.value;
+    const barberId  = barberSel.value;
+    const rawDate   = dateInput.value;        // pode vir "dd/MM/yyyy" em pt-BR
+    const dateIso   = normalizeDate(rawDate); // converte para "yyyy-MM-dd"
+
+    timeSelect.disabled   = true;
+    timeSelect.innerHTML  = '<option value="">Carregando...</option>';
+    submitBtn.disabled    = true;
+    loadingText.style.display = 'block';
+
+    if (!serviceId || !barberId || !dateIso) {
+      timeSelect.innerHTML = '<option value="">Primeiro selecione serviço, barbeiro e data</option>';
+      loadingText.style.display = 'none';
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `?handler=AvailableSlots&barberId=${encodeURIComponent(barberId)}&serviceId=${encodeURIComponent(serviceId)}&date=${encodeURIComponent(dateIso)}`,
+        { headers: { 'RequestVerificationToken': getCsrf() } }
+      );
+      if (!response.ok) throw new Error('Erro ao buscar horários');
+
+      const data = await response.json();
+      loadingText.style.display = 'none';
+
+      if (data.error) {
+        timeSelect.innerHTML = `<option value="">${data.error}</option>`;
+        return;
+      }
+
+      if (data.slots && data.slots.length > 0) {
+        timeSelect.innerHTML = '<option value="">Selecione um horário</option>';
+        data.slots.forEach(slot => {
+          const opt = document.createElement('option');
+          opt.value = slot.value;
+          opt.textContent = slot.text;
+          timeSelect.appendChild(opt);
+        });
+        timeSelect.disabled = false;
+      } else {
+        timeSelect.innerHTML = '<option value="">Nenhum horário disponível neste dia</option>';
+      }
+    } catch (err) {
+      console.error(err);
+      timeSelect.innerHTML = '<option value="">Erro ao carregar horários. Tente novamente.</option>';
+      loadingText.style.display = 'none';
+    }
+  }
+
+  timeSelect.addEventListener('change', () => { submitBtn.disabled = !timeSelect.value; });
+  serviceSel.addEventListener('change', loadAvailableSlots);
+  barberSel.addEventListener('change', loadAvailableSlots);
+  dateInput.addEventListener('change', loadAvailableSlots);
+</script>
+}

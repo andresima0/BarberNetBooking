@@ -1,0 +1,7 @@
+@model BarberNetBooking.Pages.Admin.Availability.IndexModel.WeeklyInput
+<tr>
+    <td>@Model.DayOfWeek</td>
+    <td><input asp-for="StartTime" type="time" step="1800" /></td>
+    <td><input asp-for="EndTime" type="time" step="1800" /></td>
+    <td style="text-align:center"><input asp-for="IsClosed" type="checkbox" /></td>
+</tr>

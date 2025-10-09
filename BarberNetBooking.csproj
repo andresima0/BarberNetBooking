@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\img\logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Appointments\Index.cshtml" />
+    <_ContentIncludedByDefault Remove="Pages\Appointments\_Filters.cshtml" />
+    <_ContentIncludedByDefault Remove="Pages\Availability\Index.cshtml" />
+    <_ContentIncludedByDefault Remove="Pages\Availability\_WeeklyRow.cshtml" />
+    <_ContentIncludedByDefault Remove="Pages\Settings\Index.cshtml" />
+    <_ContentIncludedByDefault Remove="Pages\Barbers\Index.cshtml" />
+    <_ContentIncludedByDefault Remove="Pages\Services\_Form.cshtml" />
+    <_ContentIncludedByDefault Remove="Pages\Services\Index.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="Pages\Admin\Appointments\_Filters.cshtml" />
+    <AdditionalFiles Include="Pages\Admin\Availability\_WeeklyRow.cshtml" />
+    <AdditionalFiles Include="Pages\Admin\Services\_Form.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
+  </ItemGroup>
+
+</Project>

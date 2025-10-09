@@ -1,0 +1,22 @@
+﻿@page
+@model BarberNetBooking.Pages.Admin.LoginModel
+@{
+    Layout = "/Pages/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Login Admin";
+}
+
+<section class="card">
+    <h2>Acesso do administrador</h2>
+    <form method="post">
+        <div class="grid">
+            <label>
+                PIN
+                <input asp-for="Pin" type="password" autocomplete="current-password" />
+            </label>
+        </div>
+        <button class="btn" type="submit">Entrar</button>
+    </form>
+    <div class="validation">
+        <div asp-validation-summary="All" class="errors"></div>
+    </div>
+</section>

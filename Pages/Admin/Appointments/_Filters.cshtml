@@ -1,0 +1,23 @@
+@model BarberNetBooking.Pages.Admin.Appointments.IndexModel.FilterInput
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    var barberOptions = (SelectList?)ViewData["BarberOptions"];
+}
+<div class="grid">
+    <label>Início
+        <input asp-for="StartTime" type="date" />
+    </label>
+    <label>Fim
+        <input asp-for="EndTime" type="date" />
+    </label>
+    <label>Barbeiro
+        <select asp-for="BarberId" asp-items="barberOptions"></select>
+    </label>
+    <label>Status
+        <select asp-for="Status">
+            <option value="">Todos</option>
+            <option value="Confirmed">Confirmado</option>
+            <option value="Cancelled">Cancelado</option>
+        </select>
+    </label>
+</div>

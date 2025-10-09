@@ -1,0 +1,47 @@
+﻿@*
+  Layout principal (cliente + links condicionais para Admin)
+*@
+@{
+    var title = ViewData["Title"] as string ?? "BarberNet";
+    var isAdmin = Context?.Request?.Cookies["bn_admin"] == "ok";
+}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title — BarberNet</title>
+    <link rel="stylesheet" href="/css/site.css" />
+    <link rel="icon" href="/favicon.ico" />
+</head>
+<body>
+<header class="container header">
+    <div class="brand">
+        <a href="/"><img src="/img/logo.png" alt="BarberNet" class="logo" /></a>
+        <h1 style="margin:0">BarberNet</h1>
+    </div>
+    <nav>
+        <a href="/">Agendar</a>
+        @if (isAdmin)
+        {
+            <a href="/Admin">Admin</a>
+            <a href="/Admin/Logout">Sair</a>
+        }
+        else
+        {
+            <a href="/Admin/Login">Entrar (Admin)</a>
+        }
+    </nav>
+</header>
+
+<main class="container">
+    @RenderBody()
+</main>
+
+<footer class="container foot">
+    <small>© @DateTime.Now.Year BarberNet — Todos os direitos reservados.</small>
+</footer>
+
+@RenderSection("Scripts", required: false)
+</body>
+</html>

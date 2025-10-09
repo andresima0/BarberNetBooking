@@ -1,0 +1,100 @@
+﻿@page
+@model BarberNetBooking.Pages.Admin.Services.IndexModel
+@{
+Layout = "/Pages/Shared/_AdminLayout.cshtml";
+ViewData["Title"] = "Serviços";
+}
+
+<section class="card">
+    <h2>Serviços Cadastrados</h2>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    <!-- Tabela para listar serviços com bordas -->
+    <table class="tbl">
+        <thead>
+        <tr>
+            <th>Serviço</th>
+            <th>Preço (R$)</th>
+            <th>Duração (minutos)</th>
+            <th class="right">Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var service in Model.Services)
+        {
+        <tr>
+            <!-- Campo para editar o nome do serviço -->
+            <td>
+                <input name="Service[@service.Id].Name" value="@service.Name" />
+            </td>
+            <!-- Campo para editar o preço -->
+            <td>
+                <input name="Service[@service.Id].Price" type="number" step="0.01" value="@service.Price" />
+            </td>
+            <!-- Campo para editar a duração -->
+            <td>
+                <input name="Service[@service.Id].DurationMinutes" type="number" value="@service.DurationMinutes" />
+            </td>
+            <td class="right">
+                <!-- Formulário para salvar alterações -->
+                <form method="post" asp-page-handler="SaveChanges" style="display:inline;">
+                    <input type="hidden" name="serviceId" value="@service.Id" />
+                    <input type="hidden" name="Service[@service.Id].Name" value="" id="hiddenName_@service.Id" />
+                    <input type="hidden" name="Service[@service.Id].Price" value="" id="hiddenPrice_@service.Id" />
+                    <input type="hidden" name="Service[@service.Id].DurationMinutes" value="" id="hiddenDuration_@service.Id" />
+                    <button type="submit" class="btn" onclick="copyValues(@service.Id)">Salvar</button>
+                </form>
+
+                <!-- Formulário para excluir o serviço -->
+                <form method="post" asp-page-handler="Delete" style="display:inline; margin-left:8px;">
+                    <input type="hidden" name="id" value="@service.Id" />
+                    <button type="submit" class="btn">Remover</button>
+                </form>
+            </td>
+        </tr>
+        }
+        </tbody>
+    </table>
+</section>
+
+<section class="card light">
+    <h3>Adicionar Novo Serviço</h3>
+    <form method="post">
+        <div class="grid">
+            <label>Nome do Serviço
+                <input asp-for="Input.Name" placeholder="Nome do Serviço" />
+            </label>
+
+            <label>Preço (R$)
+                <input asp-for="Input.Price" type="number" step="0.01" placeholder="Preço do Serviço" />
+            </label>
+
+            <label>Duração (minutos)
+                <input asp-for="Input.DurationMinutes" type="number" placeholder="Duração em minutos" />
+            </label>
+        </div>
+
+        <button type="submit" class="btn">Salvar Serviço</button>
+    </form>
+</section>
+
+<script>
+    // Copia os valores dos inputs visíveis para os campos hidden antes de submeter
+    function copyValues(serviceId) {
+        document.getElementById('hiddenName_' + serviceId).value =
+            document.querySelector('input[name="Service[' + serviceId + '].Name"]').value;
+        document.getElementById('hiddenPrice_' + serviceId).value =
+            document.querySelector('input[name="Service[' + serviceId + '].Price"]').value;
+        document.getElementById('hiddenDuration_' + serviceId).value =
+            document.querySelector('input[name="Service[' + serviceId + '].DurationMinutes"]').value;
+    }
+</script>

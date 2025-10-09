@@ -1,0 +1,41 @@
+﻿# Default ignored files
+/shelf/
+/workspace.xml
+
+# Rider ignored files
+/contentModel.xml
+/.idea.BarbernetBooking.iml
+/modules.xml
+/projectSettingsUpdater.xml
+
+# Editor-based HTTP Client requests
+/httpRequests/
+
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+# Build / caches
+bin/
+obj/
+out/
+.packages/
+*.user
+*.suo
+*.swp
+
+# IDEs
+.idea/
+.vs/
+
+# Logs & temporários
+*.log
+*.tmp
+
+# Banco local (SQLite)
+barbernet.db
+
+# Configs locais (segredos)
+appsettings.Development.json
+appsettings.json
+appsettings.Local.json

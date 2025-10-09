@@ -1,0 +1,33 @@
+﻿@page
+@model BarberNetBooking.Pages.Admin.DashboardModel
+@{
+    Layout = "/Pages/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
+}
+
+<section class="card">
+    <h2>Resumo</h2>
+    <div class="grid">
+        <div class="card light">
+            <h3>Hoje</h3>
+            <p>@Model.TodayCount agendamentos</p>
+        </div>
+        <div class="card light">
+            <h3>Próximos 7 dias</h3>
+            <p>@Model.Next7Count agendamentos</p>
+        </div>
+    </div>
+</section>
+
+<section class="card">
+    <h2>Por barbeiro (próximos)</h2>
+    <table class="tbl">
+        <thead><tr><th>Barbeiro</th><th class="right">Agendamentos</th></tr></thead>
+        <tbody>
+        @foreach (var row in Model.ByBarber)
+        {
+            <tr><td>@row.Name</td><td class="right">@row.Count</td></tr>
+        }
+        </tbody>
+    </table>
+</section>

@@ -1,0 +1,16 @@
+﻿@{
+    var allErrors = ViewData.ModelState.Values
+        .SelectMany(v => v.Errors)
+        .Select(e => e.ErrorMessage)
+        .Where(m => !string.IsNullOrWhiteSpace(m))
+        .ToList();
+}
+@if (allErrors.Any())
+{
+    <ul class="errors">
+        @foreach (var e in allErrors)
+        {
+            <li>@e</li>
+        }
+    </ul>
+}

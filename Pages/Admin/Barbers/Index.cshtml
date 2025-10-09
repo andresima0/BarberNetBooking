@@ -1,0 +1,80 @@
+﻿@page
+@model BarberNetBooking.Pages.Admin.Barbers.IndexModel
+@{
+Layout = "/Pages/Shared/_AdminLayout.cshtml";
+ViewData["Title"] = "Barbeiros";
+}
+
+<section class="card">
+    <h2>Barbeiros Cadastrados</h2>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    <!-- Tabela para listar barbeiros -->
+    <table class="tbl">
+        <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Próximos agendamentos</th>
+            <th class="right">Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var barber in Model.Barbers)
+        {
+        <tr>
+            <!-- Campo para editar o nome do barbeiro -->
+            <td>
+                <input name="Barber[@barber.Id].Name" value="@barber.Name" />
+            </td>
+            <td>@Model.FutureCounts.GetValueOrDefault(barber.Id)</td>
+            <td class="right">
+                <!-- Formulário para salvar alterações -->
+                <form method="post" asp-page-handler="SaveChanges" style="display:inline;">
+                    <input type="hidden" name="barberId" value="@barber.Id" />
+                    <input type="hidden" name="Barber[@barber.Id].Name" value="" id="hiddenName_@barber.Id" />
+                    <button type="submit" class="btn" onclick="copyBarberValues(@barber.Id)">Salvar</button>
+                </form>
+
+                <!-- Formulário para excluir o barbeiro -->
+                <form method="post" asp-page-handler="Delete" style="display:inline; margin-left:8px;">
+                    <input type="hidden" name="id" value="@barber.Id" />
+                    <button type="submit" class="btn"
+                            onclick="return confirm('Tem certeza que deseja remover este barbeiro? Esta ação não pode ser desfeita.');">
+                        Remover
+                    </button>
+                </form>
+            </td>
+        </tr>
+        }
+        </tbody>
+    </table>
+</section>
+
+<section class="card light">
+    <h3>Adicionar Novo Barbeiro</h3>
+    <form method="post" asp-page-handler="Create">
+        <div class="grid">
+            <label>Nome
+                <input asp-for="Input.Name" placeholder="Nome do Barbeiro" />
+            </label>
+        </div>
+        <button class="btn" type="submit">Adicionar Barbeiro</button>
+    </form>
+</section>
+
+<script>
+    // Copia os valores dos inputs visíveis para os campos hidden antes de submeter
+    function copyBarberValues(barberId) {
+        document.getElementById('hiddenName_' + barberId).value =
+            document.querySelector('input[name="Barber[' + barberId + '].Name"]').value;
+    }
+</script>

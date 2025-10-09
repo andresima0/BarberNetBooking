@@ -1,0 +1,18 @@
+﻿@page
+@model BarberNetBooking.Pages.Admin.Settings.IndexModel
+@{
+    Layout = "/Pages/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Configurações";
+}
+
+<section class="card">
+    <h2>Agenda</h2>
+    <form method="post">
+        <div class="grid">
+            <label>Granularidade dos horários (min)
+                <input asp-for="Input.SlotMinutes" type="number" min="5" max="120" />
+            </label>
+        </div>
+        <button class="btn" type="submit">Salvar</button>
+    </form>
+</section>

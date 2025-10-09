@@ -1,0 +1,61 @@
+﻿@page
+@model BarberNetBooking.Pages.Admin.Availability.IndexModel
+@{
+    Layout = "/Pages/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Disponibilidade";
+}
+
+<section class="card">
+    <h2>Regras semanais</h2>
+    <form method="post" asp-page-handler="SaveWeek">
+        <label>Barbeiro
+            <select asp-for="SelectedBarberId" asp-items="Model.BarberOptions"></select>
+        </label>
+        <table class="tbl">
+            <thead><tr><th>Dia</th><th>Início</th><th>Fim</th><th>Fechado</th></tr></thead>
+            <tbody>
+            @for (int i = 0; i < Model.Week.Count; i++)
+            {
+                <tr>
+                    <td>@Model.Week[i].DayOfWeek</td>
+                    <td><input name="Week[@i].StartTime" value="@Model.Week[i].StartTime.ToString()" type="time" step="1800" /></td>
+                    <td><input name="Week[@i].EndTime" value="@Model.Week[i].EndTime.ToString()" type="time" step="1800" /></td>
+                    <td style="text-align:center"><input name="Week[@i].IsClosed" type="checkbox" @(Model.Week[i].IsClosed ? "checked" : "") /></td>
+                    <input type="hidden" name="Week[@i].DayOfWeek" value="@Model.Week[i].DayOfWeek" />
+                </tr>
+            }
+            </tbody>
+        </table>
+        <button class="btn" type="submit">Salvar semana</button>
+    </form>
+</section>
+
+<section class="card light">
+    <h3>Exceções (folgas)</h3>
+    <form method="post" asp-page-handler="AddTimeOff">
+        <div class="grid">
+            <label>Data <input asp-for="NewTimeOff.Date" type="date" /></label>
+            <label>Motivo <input asp-for="NewTimeOff.Reason" /></label>
+        </div>
+        <button class="btn" type="submit">Adicionar folga</button>
+    </form>
+
+    <table class="tbl" style="margin-top:12px;">
+        <thead><tr><th>Data</th><th>Motivo</th><th class="right">Ações</th></tr></thead>
+        <tbody>
+        @foreach (var t in Model.TimeOffs)
+        {
+            <tr>
+                <td>@t.Date.ToString("yyyy-MM-dd")</td>
+                <td>@t.Reason</td>
+                <td class="right">
+                    <form method="post" asp-page-handler="DeleteTimeOff">
+                        <input type="hidden" name="id" value="@t.Id" />
+                        <button class="btn" type="submit">Remover</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</section>

@@ -1,0 +1,32 @@
+:root{ --bg:#0b0f14; --card:#111826; --muted:#9fb1c7; --text:#e6edf3; --accent:#3b82f6; --accent-2:#22c55e; --danger:#ef4444; }
+*{ box-sizing:border-box; }
+body{ margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu; color:var(--text); background:linear-gradient(135deg,#0b0f14,#0f172a); }
+.container{ max-width:1000px; margin:0 auto; padding:24px; }
+.header{ display:flex; align-items:center; justify-content:space-between; }
+.brand{ display:flex; align-items:center; gap:12px; }
+.logo{ width:52px; height:auto; filter: none; background: transparent;}
+header h1{ margin:0; font-size:28px; letter-spacing:.5px; }
+nav a{ color:var(--muted); text-decoration:none; margin-left:8px; }
+.card{ background:var(--card); border:1px solid #1f2937; border-radius:16px; padding:20px; box-shadow:0 8px 24px rgba(0,0,0,.35); margin-bottom:18px; }
+.card h2, .card h3{ margin-top:0; }
+.card.light{ background:rgba(17,24,38,.6); }
+.grid{ display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:14px; margin-bottom:12px; }
+label{ display:flex; flex-direction:column; gap:6px; font-size:14px; color:var(--muted); }
+input, select{ background:#0b1220; color:var(--text); border:1px solid #243041; border-radius:10px; padding:10px 12px; font-size:15px; }
+input:focus, select:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(59,130,246,.15); }
+.btn{ background:linear-gradient(90deg,var(--accent),#6366f1); border:none; color:white; padding:12px 18px; border-radius:12px; font-weight:600; cursor:pointer; }
+.btn:hover{ filter:brightness(1.05); }
+.validation{ margin-top:10px; }
+.errors{ margin:8px 0; padding-left:18px; }
+.errors li{ color:var(--danger); }
+.success{ color:var(--accent-2); }
+.error{ color:var(--danger); }
+.foot{ color:#93a0b4; }
+
+/* Tabela de serviços */
+.tbl{ width:100%; border-collapse:collapse; }
+.tbl th, .tbl td{ padding:12px 10px; border-bottom:1px solid #203047; }
+.tbl th{ text-align:left; color:var(--muted); font-weight:600; }
+.tbl .right{ text-align:right; }
+
+@media (max-width:700px){ .grid{ grid-template-columns: 1fr; } }
