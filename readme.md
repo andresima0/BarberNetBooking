@@ -154,7 +154,7 @@ BarberNetBooking/
    ```
 6. Acesse a aplicação:
 
-   https://localhost:5082
+   http://localhost:5082
 
 
 ## Funcionalidades do Admin
@@ -178,4 +178,4 @@ BarberNetBooking/
 ## Observações
 
 * O banco de dados **SQLite** é criado automaticamente e armazenado no arquivo `barbernet.db` na raiz do projeto.
-* Para rodar a aplicação em produção,pode-se configurar um banco de dados **PostgreSQL** em vez do SQLite.
+* Para rodar a aplicação em produção, pode-se configurar um banco de dados **PostgreSQL** em vez do SQLite.
