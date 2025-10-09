@@ -5,23 +5,47 @@
     ViewData["Title"] = "Disponibilidade";
 }
 
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
 <section class="card">
     <h2>Regras semanais</h2>
-    <form method="post" asp-page-handler="SaveWeek">
+    <form method="get">
         <label>Barbeiro
-            <select asp-for="SelectedBarberId" asp-items="Model.BarberOptions"></select>
+            <select name="SelectedBarberId" asp-items="Model.BarberOptions" onchange="this.form.submit()">
+            </select>
         </label>
+    </form>
+    
+    <form method="post" asp-page-handler="SaveWeek">
+        <input type="hidden" asp-for="SelectedBarberId" />
         <table class="tbl">
-            <thead><tr><th>Dia</th><th>Início</th><th>Fim</th><th>Fechado</th></tr></thead>
+            <thead><tr><th>Dia</th><th>Início</th><th>Fim</th><th>Status</th></tr></thead>
             <tbody>
             @for (int i = 0; i < Model.Week.Count; i++)
             {
                 <tr>
-                    <td>@Model.Week[i].DayOfWeek</td>
-                    <td><input name="Week[@i].StartTime" value="@Model.Week[i].StartTime.ToString()" type="time" step="1800" /></td>
-                    <td><input name="Week[@i].EndTime" value="@Model.Week[i].EndTime.ToString()" type="time" step="1800" /></td>
-                    <td style="text-align:center"><input name="Week[@i].IsClosed" type="checkbox" @(Model.Week[i].IsClosed ? "checked" : "") /></td>
-                    <input type="hidden" name="Week[@i].DayOfWeek" value="@Model.Week[i].DayOfWeek" />
+                    <td>@Model.GetDayName(Model.Week[i].DayOfWeek)</td>
+                    <td>
+                        <input asp-for="Week[i].StartTime" type="time" step="1800" />
+                        <input type="hidden" asp-for="Week[i].DayOfWeek" />
+                    </td>
+                    <td>
+                        <input asp-for="Week[i].EndTime" type="time" step="1800" />
+                    </td>
+                    <td>
+                        <select asp-for="Week[i].IsClosed">
+                            <option value="false">Aberto</option>
+                            <option value="true">Fechado</option>
+                        </select>
+                    </td>
                 </tr>
             }
             </tbody>
@@ -33,6 +57,7 @@
 <section class="card light">
     <h3>Exceções (folgas)</h3>
     <form method="post" asp-page-handler="AddTimeOff">
+        <input type="hidden" asp-for="SelectedBarberId" />
         <div class="grid">
             <label>Data <input asp-for="NewTimeOff.Date" type="date" /></label>
             <label>Motivo <input asp-for="NewTimeOff.Reason" /></label>
@@ -40,22 +65,30 @@
         <button class="btn" type="submit">Adicionar folga</button>
     </form>
 
-    <table class="tbl" style="margin-top:12px;">
-        <thead><tr><th>Data</th><th>Motivo</th><th class="right">Ações</th></tr></thead>
-        <tbody>
-        @foreach (var t in Model.TimeOffs)
-        {
-            <tr>
-                <td>@t.Date.ToString("yyyy-MM-dd")</td>
-                <td>@t.Reason</td>
-                <td class="right">
-                    <form method="post" asp-page-handler="DeleteTimeOff">
-                        <input type="hidden" name="id" value="@t.Id" />
-                        <button class="btn" type="submit">Remover</button>
-                    </form>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    @if (Model.TimeOffs.Any())
+    {
+        <table class="tbl" style="margin-top:12px;">
+            <thead><tr><th>Data</th><th>Motivo</th><th class="right">Ações</th></tr></thead>
+            <tbody>
+            @foreach (var t in Model.TimeOffs)
+            {
+                <tr>
+                    <td>@t.Date.ToString("dd/MM/yyyy")</td>
+                    <td>@(string.IsNullOrWhiteSpace(t.Reason) ? "-" : t.Reason)</td>
+                    <td class="right">
+                        <form method="post" asp-page-handler="DeleteTimeOff">
+                            <input type="hidden" name="id" value="@t.Id" />
+                            <input type="hidden" asp-for="SelectedBarberId" />
+                            <button class="btn" type="submit">Remover</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p style="margin-top:12px;"><em>Nenhuma folga cadastrada.</em></p>
+    }
 </section>

@@ -16,95 +16,215 @@ public class IndexModel : PageModel
     public IndexModel(AppDbContext db) => _db = db;
 
     public SelectList BarberOptions { get; set; } = default!;
-    [BindProperty(SupportsGet = true)] public int SelectedBarberId { get; set; }
+    
+    [BindProperty(SupportsGet = true)] 
+    public int SelectedBarberId { get; set; }
 
-    [BindProperty] public List<WeeklyInput> Week { get; set; } = new();
+    [BindProperty] 
+    public List<WeeklyInput> Week { get; set; } = new();
+    
     public List<BarberTimeOff> TimeOffs { get; set; } = new();
 
-    [BindProperty] public TimeOffInput NewTimeOff { get; set; } = new();
+    [BindProperty] 
+    public TimeOffInput NewTimeOff { get; set; } = new();
+
+    [TempData]
+    public string? SuccessMessage { get; set; }
+    
+    [TempData]
+    public string? ErrorMessage { get; set; }
 
     public class WeeklyInput
     {
         public DayOfWeek DayOfWeek { get; set; }
-        public TimeOnly StartTime { get; set; } = new(9,0);
-        public TimeOnly EndTime { get; set; } = new(18,0);
+        public TimeOnly StartTime { get; set; } = new(9, 0);
+        public TimeOnly EndTime { get; set; } = new(18, 0);
         public bool IsClosed { get; set; }
     }
 
     public class TimeOffInput
     {
-        [Required] public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+        [Required(ErrorMessage = "A data é obrigatória")]
+        public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+        
         public string? Reason { get; set; }
     }
 
     public async Task OnGetAsync()
     {
         var barbers = await _db.Barbers.AsNoTracking().OrderBy(b => b.Name).ToListAsync();
-        BarberOptions = new SelectList(barbers, nameof(Barber.Id), nameof(Barber.Name));
-        if (SelectedBarberId == 0 && barbers.Any()) SelectedBarberId = barbers.First().Id;
+        
+        if (SelectedBarberId == 0 && barbers.Any()) 
+        {
+            SelectedBarberId = barbers.First().Id;
+        }
+        
+        // Define o barbeiro selecionado no SelectList
+        BarberOptions = new SelectList(barbers, nameof(Barber.Id), nameof(Barber.Name), SelectedBarberId);
 
         await LoadWeekAsync();
-        TimeOffs = await _db.TimeOffs.Where(t => t.BarberId == SelectedBarberId)
-            .OrderBy(t => t.Date).ToListAsync();
+        
+        TimeOffs = await _db.TimeOffs
+            .Where(t => t.BarberId == SelectedBarberId)
+            .OrderBy(t => t.Date)
+            .ToListAsync();
     }
 
     private async Task LoadWeekAsync()
     {
         Week.Clear();
-        var rules = await _db.WorkingHours.Where(w => w.BarberId == SelectedBarberId).ToListAsync();
-        foreach (DayOfWeek d in Enum.GetValues(typeof(DayOfWeek)))
+        var rules = await _db.WorkingHours
+            .Where(w => w.BarberId == SelectedBarberId)
+            .ToListAsync();
+
+        // Ordena os dias da semana começando pela segunda-feira
+        var orderedDays = new[] 
+        { 
+            DayOfWeek.Monday, 
+            DayOfWeek.Tuesday, 
+            DayOfWeek.Wednesday, 
+            DayOfWeek.Thursday, 
+            DayOfWeek.Friday, 
+            DayOfWeek.Saturday, 
+            DayOfWeek.Sunday 
+        };
+
+        foreach (var day in orderedDays)
         {
-            var r = rules.FirstOrDefault(x => x.DayOfWeek == d);
+            var rule = rules.FirstOrDefault(x => x.DayOfWeek == day);
             Week.Add(new WeeklyInput
             {
-                DayOfWeek = d,
-                StartTime = r?.StartTime ?? new TimeOnly(9,0),
-                EndTime = r?.EndTime ?? new TimeOnly(18,0),
-                IsClosed = r?.IsClosed ?? (d == DayOfWeek.Sunday)
+                DayOfWeek = day,
+                StartTime = rule?.StartTime ?? new TimeOnly(9, 0),
+                EndTime = rule?.EndTime ?? new TimeOnly(18, 0),
+                IsClosed = rule?.IsClosed ?? (day == DayOfWeek.Sunday)
             });
         }
     }
 
     public async Task<IActionResult> OnPostSaveWeekAsync()
     {
-        var existing = await _db.WorkingHours.Where(w => w.BarberId == SelectedBarberId).ToListAsync();
+        // IMPORTANTE: Recarrega o SelectedBarberId do form hidden
+        if (SelectedBarberId == 0)
+        {
+            ErrorMessage = "Selecione um barbeiro.";
+            await OnGetAsync();
+            return Page();
+        }
+
+        // Valida horários
         foreach (var item in Week)
         {
-            var r = existing.FirstOrDefault(x => x.DayOfWeek == item.DayOfWeek);
-            if (r == null)
+            if (!item.IsClosed && item.StartTime >= item.EndTime)
             {
+                ErrorMessage = $"Horário inválido para {GetDayName(item.DayOfWeek)}: início deve ser antes do fim.";
+                await OnGetAsync();
+                return Page();
+            }
+        }
+
+        // Busca APENAS as regras deste barbeiro específico
+        var existing = await _db.WorkingHours
+            .Where(w => w.BarberId == SelectedBarberId)
+            .ToListAsync();
+
+        foreach (var item in Week)
+        {
+            // Busca a regra existente para ESTE barbeiro e ESTE dia
+            var rule = existing.FirstOrDefault(x => 
+                x.BarberId == SelectedBarberId && 
+                x.DayOfWeek == item.DayOfWeek);
+            
+            if (rule == null)
+            {
+                // Cria nova regra para ESTE barbeiro
                 _db.WorkingHours.Add(new BarberWorkingHour
                 {
-                    BarberId = SelectedBarberId, 
-                    DayOfWeek = item.DayOfWeek, 
-                    StartTime = item.StartTime, 
-                    EndTime = item.EndTime, 
+                    BarberId = SelectedBarberId,
+                    DayOfWeek = item.DayOfWeek,
+                    StartTime = item.StartTime,
+                    EndTime = item.EndTime,
                     IsClosed = item.IsClosed
                 });
             }
             else
             {
-                r.StartTime = item.StartTime; 
-                r.EndTime = item.EndTime; 
-                r.IsClosed = item.IsClosed;
+                // Atualiza regra existente
+                rule.StartTime = item.StartTime;
+                rule.EndTime = item.EndTime;
+                rule.IsClosed = item.IsClosed;
             }
         }
+
         await _db.SaveChangesAsync();
+        SuccessMessage = $"Horários do barbeiro salvos com sucesso!";
+        
         return RedirectToPage(new { SelectedBarberId });
     }
 
     public async Task<IActionResult> OnPostAddTimeOffAsync()
     {
-        if (!ModelState.IsValid) { await OnGetAsync(); return Page(); }
-        _db.TimeOffs.Add(new BarberTimeOff { BarberId = SelectedBarberId, Date = NewTimeOff.Date, Reason = NewTimeOff.Reason });
+        if (SelectedBarberId == 0)
+        {
+            ErrorMessage = "Selecione um barbeiro.";
+            await OnGetAsync();
+            return Page();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            ErrorMessage = "Preencha a data corretamente.";
+            await OnGetAsync();
+            return Page();
+        }
+
+        // Verifica se já existe folga nesta data
+        var existingTimeOff = await _db.TimeOffs
+            .FirstOrDefaultAsync(t => t.BarberId == SelectedBarberId && t.Date == NewTimeOff.Date);
+
+        if (existingTimeOff != null)
+        {
+            ErrorMessage = "Já existe uma folga cadastrada para esta data.";
+            await OnGetAsync();
+            return Page();
+        }
+
+        _db.TimeOffs.Add(new BarberTimeOff
+        {
+            BarberId = SelectedBarberId,
+            Date = NewTimeOff.Date,
+            Reason = NewTimeOff.Reason?.Trim()
+        });
+
         await _db.SaveChangesAsync();
+        SuccessMessage = "Folga adicionada com sucesso!";
+        
         return RedirectToPage(new { SelectedBarberId });
     }
 
     public async Task<IActionResult> OnPostDeleteTimeOffAsync(int id)
     {
-        var t = await _db.TimeOffs.FindAsync(id);
-        if (t != null) { _db.TimeOffs.Remove(t); await _db.SaveChangesAsync(); }
+        var timeOff = await _db.TimeOffs.FindAsync(id);
+        
+        if (timeOff != null)
+        {
+            _db.TimeOffs.Remove(timeOff);
+            await _db.SaveChangesAsync();
+            SuccessMessage = "Folga removida com sucesso!";
+        }
+        
         return RedirectToPage(new { SelectedBarberId });
     }
+
+    public string GetDayName(DayOfWeek day) => day switch
+    {
+        DayOfWeek.Sunday => "Domingo",
+        DayOfWeek.Monday => "Segunda-feira",
+        DayOfWeek.Tuesday => "Terça-feira",
+        DayOfWeek.Wednesday => "Quarta-feira",
+        DayOfWeek.Thursday => "Quinta-feira",
+        DayOfWeek.Friday => "Sexta-feira",
+        DayOfWeek.Saturday => "Sábado",
+        _ => day.ToString()
+    };
 }
