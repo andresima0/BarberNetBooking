@@ -178,4 +178,4 @@ BarberNetBooking/
 ## Observações
 
 * O banco de dados **SQLite** é criado automaticamente e armazenado no arquivo `barbernet.db` na raiz do projeto.
-* Para rodar a aplicação em produção, você pode configurar um banco de dados **PostgreSQL** em vez do SQLite.
+* Para rodar a aplicação em produção,pode-se configurar um banco de dados **PostgreSQL** em vez do SQLite.
