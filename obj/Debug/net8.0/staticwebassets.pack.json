@@ -1,10 +1,6 @@
 {
   "Files": [
     {
-      "Id": "D:\\1-ANDRE SIMAO\\1-Estudo\\2-UNIVESP\\3 Semestre\\PI-II\\JetBrainsProjects\\BarbernetBooking\\BarberNetBooking\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\BarberNetBooking.bundle.scp.css",
-      "PackagePath": "staticwebassets\\BarberNetBooking.bundle.scp.css"
-    },
-    {
       "Id": "D:\\1-ANDRE SIMAO\\1-Estudo\\2-UNIVESP\\3 Semestre\\PI-II\\JetBrainsProjects\\BarbernetBooking\\BarberNetBooking\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
     },

@@ -301,6 +301,7 @@ D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\Barbernet
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\BarberNetBooking.MvcApplicationPartsAssemblyInfo.cache
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\BarberNetBooking.RazorAssemblyInfo.cache
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\BarberNetBooking.RazorAssemblyInfo.cs
+D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\BarberNetBooking.sourcelink.json
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\staticwebassets.build.json
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\staticwebassets.development.json
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\staticwebassets\msbuild.BarberNetBooking.Microsoft.AspNetCore.StaticWebAssets.props
@@ -308,13 +309,10 @@ D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\Barbernet
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.BarberNetBooking.props
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.BarberNetBooking.props
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\staticwebassets.pack.json
-D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\scopedcss\Pages\Shared\_Layout.cshtml.rz.scp.css
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\scopedcss\bundle\BarberNetBooking.styles.css
-D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\scopedcss\projectbundle\BarberNetBooking.bundle.scp.css
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\BarberNe.148A89AD.Up2Date
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\BarberNetBooking.dll
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\refint\BarberNetBooking.dll
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\BarberNetBooking.pdb
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\BarberNetBooking.genruntimeconfig.cache
 D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\ref\BarberNetBooking.dll
-D:\1-ANDRE SIMAO\1-Estudo\2-UNIVESP\3 Semestre\PI-II\JetBrainsProjects\BarbernetBooking\BarberNetBooking\obj\Debug\net8.0\BarberNetBooking.sourcelink.json

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BarberNetBooking.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251008175632_MapTimeOnlyToTicks")]
-    partial class MapTimeOnlyToTicks
+    [Migration("20251009153602_InitialCreateWithDateFix")]
+    partial class InitialCreateWithDateFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

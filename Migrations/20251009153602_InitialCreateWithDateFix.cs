@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BarberNetBooking.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialCreateWithDateFix : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -109,8 +109,8 @@ namespace BarberNetBooking.Migrations
                     ServiceId = table.Column<int>(type: "INTEGER", nullable: false),
                     BarberId = table.Column<int>(type: "INTEGER", nullable: false),
                     Date = table.Column<string>(type: "TEXT", nullable: false),
-                    StartTime = table.Column<TimeSpan>(type: "TEXT", nullable: false),
-                    EndTime = table.Column<TimeSpan>(type: "TEXT", nullable: false),
+                    StartTime = table.Column<long>(type: "INTEGER", nullable: false),
+                    EndTime = table.Column<long>(type: "INTEGER", nullable: false),
                     Time = table.Column<TimeSpan>(type: "TEXT", nullable: false),
                     CustomerEmail = table.Column<string>(type: "TEXT", nullable: false),
                     CustomerPhone = table.Column<string>(type: "TEXT", nullable: false),
@@ -137,7 +137,8 @@ namespace BarberNetBooking.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_BarberId_Date_StartTime",
                 table: "Appointments",
-                columns: new[] { "BarberId", "Date", "StartTime" });
+                columns: new[] { "BarberId", "Date", "StartTime" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_ServiceId",

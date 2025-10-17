@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using BarberNetBooking.Data;
 using BarberNetBooking.Infrastructure;
 using BarberNetBooking.Models;
@@ -23,7 +24,10 @@ public class IndexModel : PageModel
 
     public class FilterInput
     {
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateOnly? StartTime { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateOnly? EndTime { get; set; }
         public int? BarberId { get; set; }
         public string? Status { get; set; }

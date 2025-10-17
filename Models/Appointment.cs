@@ -1,4 +1,6 @@
-﻿namespace BarberNetBooking.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BarberNetBooking.Models;
 
 public class Appointment
 {
@@ -7,8 +9,16 @@ public class Appointment
     public int BarberId { get; set; }
     
     // Campos de data/hora
+    [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
     public DateOnly Date { get; set; }
+    
+    [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
     public TimeOnly StartTime { get; set; }
+    
+    [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
     public TimeOnly EndTime { get; set; }
     
     // Campo legado (mantém compatibilidade)

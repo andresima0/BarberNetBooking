@@ -4,7 +4,6 @@
     ViewData["Title"] = "Agendamento";
 }
 
-<!-- 1) Tabela de serviços acima do formulário -->
 <section class="card light">
     <h2>Serviços & preços</h2>
     <table class="tbl">
@@ -26,7 +25,6 @@
     </table>
 </section>
 
-<!-- 2) Formulário de agendamento abaixo -->
 <section class="card">
     <h2>Agende seu horário</h2>
 
@@ -68,10 +66,12 @@
             <label class="form-group">
                 Data *
                 <input asp-for="Input.Date"
-                       type="date"
-                       id="dateInput"
-                       class="form-control"
-                       min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                       asp-format="{0:dd/MM/yyyy}"
+                       type="text"
+                       class="form-control js-date"
+                       placeholder="dd/mm/aaaa"
+                       autocomplete="off"
+                       aria-haspopup="dialog"
                        required />
             </label>
 
@@ -120,28 +120,61 @@
 </section>
 
 @section Scripts {
+    <!-- Flatpickr no mesmo padrão usado nas páginas de Admin -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
 <script>
   const form        = document.getElementById('bookingForm');
   const serviceSel  = document.getElementById('serviceSelect');
   const barberSel   = document.getElementById('barberSelect');
-  const dateInput   = document.getElementById('dateInput');
+  const dateInput   = document.querySelector('.js-date'); // <— agora por classe
   const timeSelect  = document.getElementById('timeSelect');
   const submitBtn   = document.getElementById('submitBtn');
   const loadingText = document.getElementById('loadingText');
+
+  // Inicializa Flatpickr em dd/MM/yyyy (padrão global) com fallback para <input type="date">
+  try {
+    if (window.flatpickr && dateInput) {
+      flatpickr(".js-date", {
+        dateFormat: "d/m/Y",
+        locale: flatpickr.l10ns.pt,
+        minDate: "today",
+        allowInput: false,
+        clickOpens: true,
+        disableMobile: true,
+        onChange: () => loadAvailableSlots()
+      });
+
+      // Abrir ao focar/clicar (conveniência)
+      document.querySelectorAll(".js-date").forEach(function (el) {
+        el.addEventListener("focus", function () { if (el._flatpickr) el._flatpickr.open(); });
+        el.addEventListener("click", function () { if (el._flatpickr) el._flatpickr.open(); });
+      });
+    } else if (dateInput) {
+      dateInput.setAttribute('type', 'date');
+      dateInput.setAttribute('min', new Date().toISOString().slice(0,10));
+    }
+  } catch {
+    if (dateInput) {
+      dateInput.setAttribute('type', 'date');
+      dateInput.setAttribute('min', new Date().toISOString().slice(0,10));
+    }
+  }
 
   function getCsrf() {
     const el = form.querySelector('input[name="__RequestVerificationToken"]');
     return el ? el.value : '';
   }
 
-  // Normaliza "08/10/2025" -> "2025-10-08" (pt-BR -> ISO). Mantém ISO se já estiver.
+  // Converte dd/MM/yyyy -> yyyy-MM-dd para o handler
   function normalizeDate(val) {
     if (!val) return '';
-    if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val; // já está ISO
-    const m = val.match(/^(\d{2})\/(\d{2})\/(\d{4})$/); // dd/MM/yyyy
+    if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
+    const m = val.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
     if (m) return `${m[3]}-${m[2]}-${m[1]}`;
-    // fallback via valueAsDate (caso o browser entregue outro formato local)
-    if (dateInput.valueAsDate instanceof Date) {
+    if (dateInput && dateInput.valueAsDate instanceof Date) {
       const d = dateInput.valueAsDate;
       const pad = n => String(n).padStart(2, '0');
       return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -152,8 +185,8 @@
   async function loadAvailableSlots() {
     const serviceId = serviceSel.value;
     const barberId  = barberSel.value;
-    const rawDate   = dateInput.value;        // pode vir "dd/MM/yyyy" em pt-BR
-    const dateIso   = normalizeDate(rawDate); // converte para "yyyy-MM-dd"
+    const rawDate   = dateInput ? dateInput.value : ''; // dd/MM/yyyy (Flatpickr) ou yyyy-MM-dd (fallback)
+    const dateIso   = normalizeDate(rawDate);           // yyyy-MM-dd
 
     timeSelect.disabled   = true;
     timeSelect.innerHTML  = '<option value="">Carregando...</option>';
@@ -203,6 +236,6 @@
   timeSelect.addEventListener('change', () => { submitBtn.disabled = !timeSelect.value; });
   serviceSel.addEventListener('change', loadAvailableSlots);
   barberSel.addEventListener('change', loadAvailableSlots);
-  dateInput.addEventListener('change', loadAvailableSlots);
+  if (dateInput) dateInput.addEventListener('change', loadAvailableSlots);
 </script>
 }

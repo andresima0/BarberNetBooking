@@ -74,7 +74,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<BarberTimeOff>()
             .Property(t => t.Date)
             .HasConversion(
-                v => v.ToString("MM/dd/yyyy"),
+                v => v.ToString("yyyy-MM-dd"),
                 v => DateOnly.Parse(v));
 
         // 1 folga por barbeiro/data
