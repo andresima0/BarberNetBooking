@@ -1,33 +1,76 @@
 ﻿@page
 @model BarberNetBooking.Pages.Admin.DashboardModel
 @{
-    Layout = "/Pages/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Dashboard";
+Layout = "/Pages/Shared/_AdminLayout.cshtml";
+ViewData["Title"] = "Dashboard";
 }
 
 <section class="card">
-    <h2>Resumo</h2>
+    <h2>Resumo de Agendamentos</h2>
     <div class="grid">
         <div class="card light">
-            <h3>Hoje</h3>
-            <p>@Model.TodayCount agendamentos</p>
+            <h3>📅 Hoje</h3>
+            <p style="font-size:32px; font-weight:700; color:var(--accent); margin:8px 0;">
+                @Model.TodayCount
+            </p>
+            <p style="color:var(--muted); font-size:14px; margin:0;">
+                agendamento@(Model.TodayCount != 1 ? "s" : "")
+            </p>
         </div>
         <div class="card light">
-            <h3>Próximos 7 dias</h3>
-            <p>@Model.Next7Count agendamentos</p>
+            <h3>📆 Próximos 7 dias</h3>
+            <p style="font-size:32px; font-weight:700; color:var(--accent-2); margin:8px 0;">
+                @Model.Next7Count
+            </p>
+            <p style="color:var(--muted); font-size:14px; margin:0;">
+                agendamento@(Model.Next7Count != 1 ? "s" : "")
+            </p>
         </div>
     </div>
 </section>
 
 <section class="card">
-    <h2>Por barbeiro (próximos)</h2>
+    <h2>Agendamentos por Barbeiro</h2>
+
+    @if (!Model.ByBarber.Any())
+    {
+    <p class="empty-state">Nenhum agendamento futuro encontrado.</p>
+    }
+    else
+    {
     <table class="tbl">
-        <thead><tr><th>Barbeiro</th><th class="right">Agendamentos</th></tr></thead>
+        <thead>
+        <tr>
+            <th>Barbeiro</th>
+            <th class="right">Agendamentos Futuros</th>
+        </tr>
+        </thead>
         <tbody>
         @foreach (var row in Model.ByBarber)
         {
-            <tr><td>@row.Name</td><td class="right">@row.Count</td></tr>
+        <tr>
+            <td>@row.Name</td>
+            <td class="right">
+                <span style="font-weight:600; color:var(--text);">@row.Count</span>
+            </td>
+        </tr>
         }
         </tbody>
     </table>
+    }
+</section>
+
+<section class="card light">
+    <h3>Ações Rápidas</h3>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a asp-page="/Admin/Appointments/Index" class="btn">
+            Ver todos agendamentos
+        </a>
+        <a asp-page="/Admin/Barbers/Index" class="btn">
+            Gerenciar barbeiros
+        </a>
+        <a asp-page="/Admin/Availability/Index" class="btn">
+            Configurar horários
+        </a>
+    </div>
 </section>

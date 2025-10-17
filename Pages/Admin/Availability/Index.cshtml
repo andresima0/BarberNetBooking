@@ -59,8 +59,20 @@
     <form method="post" asp-page-handler="AddTimeOff">
         <input type="hidden" asp-for="SelectedBarberId" />
         <div class="grid">
-            <label>Data <input asp-for="NewTimeOff.Date" type="date" /></label>
-            <label>Motivo <input asp-for="NewTimeOff.Reason" /></label>
+            <label>Data 
+                <input asp-for="NewTimeOff.Date"
+                       asp-format="{0:dd/MM/yyyy}"
+                       type="text"
+                       class="form-control js-date"
+                       placeholder="dd/mm/aaaa"
+                       autocomplete="off"
+                       aria-haspopup="dialog" />
+                <span asp-validation-for="NewTimeOff.Date" class="text-danger"></span>
+            </label>
+            <label>Motivo 
+                <input asp-for="NewTimeOff.Reason" 
+                       placeholder="Ex: Férias, Folga pessoal..." />
+            </label>
         </div>
         <button class="btn" type="submit">Adicionar folga</button>
     </form>
@@ -73,13 +85,16 @@
             @foreach (var t in Model.TimeOffs)
             {
                 <tr>
-                    <td>@t.Date.ToString("dd/MM/yyyy")</td>
+                    <td>@t.Date.ToBrazilianDate()</td>
                     <td>@(string.IsNullOrWhiteSpace(t.Reason) ? "-" : t.Reason)</td>
                     <td class="right">
                         <form method="post" asp-page-handler="DeleteTimeOff">
                             <input type="hidden" name="id" value="@t.Id" />
                             <input type="hidden" asp-for="SelectedBarberId" />
-                            <button class="btn" type="submit">Remover</button>
+                            <button class="btn" type="submit" 
+                                    onclick="return confirm('Deseja remover esta folga?');">
+                                Remover
+                            </button>
                         </form>
                     </td>
                 </tr>
@@ -92,3 +107,30 @@
         <p style="margin-top:12px;"><em>Nenhuma folga cadastrada.</em></p>
     }
 </section>
+
+@section Scripts {
+    <!-- Flatpickr para calendário dd/MM/yyyy, igual ao usado em Appointments -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Inicializa todos os campos de data desta página
+            flatpickr(".js-date", {
+                dateFormat: "d/m/Y",   // dd/MM/yyyy
+                locale: flatpickr.l10ns.pt,
+                allowInput: false,
+                clickOpens: true,
+                disableMobile: true,
+                minDate: "today"       // substitui o min="yyyy-MM-dd" anterior
+            });
+
+            // Conveniência: abre ao focar/clicar
+            document.querySelectorAll(".js-date").forEach(function (el) {
+                el.addEventListener("focus", function () { if (el._flatpickr) el._flatpickr.open(); });
+                el.addEventListener("click", function () { if (el._flatpickr) el._flatpickr.open(); });
+            });
+        });
+    </script>
+}

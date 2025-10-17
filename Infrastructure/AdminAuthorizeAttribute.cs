@@ -3,21 +3,33 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BarberNetBooking.Infrastructure;
 
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public sealed class AdminAuthorizeAttribute : Attribute, IAsyncPageFilter
+/// <summary>
+/// Atributo que protege páginas administrativas verificando o cookie de autenticação
+/// </summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+public class AdminAuthorizeAttribute : Attribute, IPageFilter
 {
-    public Task OnPageHandlerSelectionAsync(PageHandlerSelectedContext context) => Task.CompletedTask;
-
-    public Task OnPageHandlerExecutionAsync(PageHandlerExecutingContext context, PageHandlerExecutionDelegate next)
+    public void OnPageHandlerSelected(PageHandlerSelectedContext context)
     {
-        var http = context.HttpContext;
-        if (http.Request.Cookies.TryGetValue("bn_admin", out var val) && val == "ok")
-        {
-            return next();
-        }
+        // Não faz nada aqui
+    }
 
-        var returnUrl = http.Request.Path.Value ?? "/Admin";
-        context.Result = new RedirectToPageResult("/Admin/Login", new { returnUrl });
-        return Task.CompletedTask;
+    public void OnPageHandlerExecuting(PageHandlerExecutingContext context)
+    {
+        var httpContext = context.HttpContext;
+        
+        // Verifica se o cookie de admin existe e está válido
+        var isAdmin = httpContext.Request.Cookies["bn_admin"] == "ok";
+
+        if (!isAdmin)
+        {
+            // Redireciona para a página de login se não estiver autenticado
+            context.Result = new RedirectToPageResult("/Admin/Login", new { returnUrl = httpContext.Request.Path });
+        }
+    }
+
+    public void OnPageHandlerExecuted(PageHandlerExecutedContext context)
+    {
+        // Não faz nada aqui
     }
 }

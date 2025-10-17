@@ -1,38 +1,46 @@
 @*
-  Layout da área administrativa
+  Layout da área administrativa (herda do _Layout.cshtml principal)
 *@
 @{
-    Layout = null;
+    Layout = "/Pages/Shared/_Layout.cshtml";
 }
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BarberNet — Admin</title>
-    <link rel="stylesheet" href="/css/site.css" />
-</head>
-<body>
-<header class="container header">
-    <div class="brand">
-        <img src="/img/logo.png" alt="BarberNet" class="logo" />
-        <h1>Admin</h1>
-    </div>
-    <nav>
-        <a href="/Admin">Dashboard</a>
-        <a href="/Admin/Appointments">Agendamentos</a>
-        <a href="/Admin/Services">Serviços</a>
-        <a href="/Admin/Barbers">Barbeiros</a>
-        <a href="/Admin/Availability">Disponibilidade</a>
-        <a href="/Admin/Settings">Configurações</a>
-        <a href="/Admin/Logout">Sair</a>
+
+<!-- CSS do Flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<div class="admin-container">
+    <nav class="admin-tabs">
+        <a asp-page="/Admin/Index" 
+           class="@(ViewContext.RouteData.Values["page"]?.ToString() == "/Admin/Index" ? "active" : "")">
+            Dashboard
+        </a>
+        <a asp-page="/Admin/Appointments/Index" 
+           class="@(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Admin/Appointments") == true ? "active" : "")">
+            Agendamentos
+        </a>
+        <a asp-page="/Admin/Services/Index" 
+           class="@(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Admin/Services") == true ? "active" : "")">
+            Serviços
+        </a>
+        <a asp-page="/Admin/Barbers/Index" 
+           class="@(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Admin/Barbers") == true ? "active" : "")">
+            Barbeiros
+        </a>
+        <a asp-page="/Admin/Availability/Index" 
+           class="@(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Admin/Availability") == true ? "active" : "")">
+            Disponibilidade
+        </a>
+        <a asp-page="/Admin/Settings/Index" 
+           class="@(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Admin/Settings") == true ? "active" : "")">
+            Configurações
+        </a>
     </nav>
-</header>
-<main class="container">
-    @RenderBody()
-</main>
-<footer class="container foot">
-    <small>© @DateTime.Now.Year BarberNet — Área Administrativa</small>
-</footer>
-</body>
-</html>
+
+    <div class="admin-content">
+        @RenderBody()
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

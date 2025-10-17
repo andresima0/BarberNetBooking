@@ -1,4 +1,5 @@
 using BarberNetBooking.Data;
+using BarberNetBooking.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using BarberNetBooking.Models;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BarberNetBooking.Pages.Admin.Services
 {
+    [AdminAuthorize] // CRÍTICO: Protege a página
     public class IndexModel : PageModel
     {
         private readonly AppDbContext _db;
@@ -24,7 +26,10 @@ namespace BarberNetBooking.Pages.Admin.Services
 
         [BindProperty] public Service Input { get; set; } = new Service();
 
+        [TempData]
         public string? SuccessMessage { get; set; }
+        
+        [TempData]
         public string? ErrorMessage { get; set; }
 
         public async Task OnGetAsync()
@@ -39,14 +44,14 @@ namespace BarberNetBooking.Pages.Admin.Services
             BarberOptions = new SelectList(barbers, nameof(Barber.Id), nameof(Barber.Name));
         }
 
-        public async Task<IActionResult> OnPostSaveChanges(int serviceId)
+        public async Task<IActionResult> OnPostSaveChangesAsync(int serviceId)
         {
             var serviceToUpdate = await _db.Services.FindAsync(serviceId);
 
             if (serviceToUpdate == null)
             {
                 ErrorMessage = "Serviço não encontrado.";
-                Services = await _db.Services.AsNoTracking().OrderBy(s => s.Price).ToListAsync();
+                await OnGetAsync();
                 return Page();
             }
 
@@ -58,16 +63,15 @@ namespace BarberNetBooking.Pages.Admin.Services
             if (string.IsNullOrWhiteSpace(name))
             {
                 ErrorMessage = "O nome do serviço não pode estar vazio.";
-                Services = await _db.Services.AsNoTracking().OrderBy(s => s.Price).ToListAsync();
+                await OnGetAsync();
                 return Page();
             }
 
-            serviceToUpdate.Name = name;
+            serviceToUpdate.Name = name.Trim();
             serviceToUpdate.Price = decimal.TryParse(priceStr, out var price) ? price : serviceToUpdate.Price;
             serviceToUpdate.DurationMinutes = int.TryParse(durationStr, out var duration) ? duration : serviceToUpdate.DurationMinutes;
 
             await _db.SaveChangesAsync();
-
             SuccessMessage = "Serviço atualizado com sucesso!";
     
             return RedirectToPage("./Index");
@@ -79,11 +83,21 @@ namespace BarberNetBooking.Pages.Admin.Services
 
             if (serviceToDelete != null)
             {
+                // Verifica se há agendamentos usando este serviço
+                var hasAppointments = await _db.Appointments
+                    .AnyAsync(a => a.ServiceId == id && a.Status == AppointmentStatus.Confirmed);
+
+                if (hasAppointments)
+                {
+                    ErrorMessage = "Não é possível remover um serviço que possui agendamentos.";
+                    await OnGetAsync();
+                    return Page();
+                }
+
                 _db.Services.Remove(serviceToDelete);
                 await _db.SaveChangesAsync();
+                SuccessMessage = "Serviço removido com sucesso!";
             }
-
-            Services = await _db.Services.AsNoTracking().OrderBy(s => s.Price).ToListAsync();
 
             return RedirectToPage("./Index");
         }
@@ -93,6 +107,22 @@ namespace BarberNetBooking.Pages.Admin.Services
             if (!ModelState.IsValid)
             {
                 ErrorMessage = "Verifique os campos e tente novamente.";
+                await OnGetAsync();
+                return Page();
+            }
+
+            // Validação adicional
+            if (Input.Price <= 0)
+            {
+                ErrorMessage = "O preço deve ser maior que zero.";
+                await OnGetAsync();
+                return Page();
+            }
+
+            if (Input.DurationMinutes <= 0)
+            {
+                ErrorMessage = "A duração deve ser maior que zero.";
+                await OnGetAsync();
                 return Page();
             }
 
@@ -102,6 +132,7 @@ namespace BarberNetBooking.Pages.Admin.Services
             SuccessMessage = "Novo serviço adicionado!";
             ModelState.Clear();
             Input = new Service(); // Limpa o formulário após sucesso
+            
             return RedirectToPage("./Index");
         }
     }

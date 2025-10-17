@@ -1,54 +1,170 @@
 ﻿@page
 @model BarberNetBooking.Pages.Admin.Appointments.IndexModel
+
 @{
-    Layout = "/Pages/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Agendamentos";
+Layout = "/Pages/Shared/_AdminLayout.cshtml";
+ViewData["Title"] = "Agendamentos";
 }
 
 <section class="card">
     <h2>Filtrar</h2>
-    <form method="get">
-        <partial name="_Filters" model="Model.Filters" />
-        <button class="btn" type="submit">Aplicar</button>
+    <form method="get" class="booking-form">
+        <div class="grid form-grid">
+
+            <label class="form-group">
+                Data Início
+                <input asp-for="Filters.StartTime"
+                       asp-format="{0:dd/MM/yyyy}"
+                       type="text"
+                       class="form-control js-date"
+                       placeholder="dd/mm/aaaa"
+                       autocomplete="off"
+                       aria-haspopup="dialog" />
+                <span asp-validation-for="Filters.StartTime" class="text-danger"></span>
+            </label>
+
+            <label class="form-group">
+                Data Fim
+                <input asp-for="Filters.EndTime"
+                       asp-format="{0:dd/MM/yyyy}"
+                       type="text"
+                       class="form-control js-date"
+                       placeholder="dd/mm/aaaa"
+                       autocomplete="off"
+                       aria-haspopup="dialog" />
+                <span asp-validation-for="Filters.EndTime" class="text-danger"></span>
+            </label>
+
+            <label class="form-group">
+                Barbeiro
+                <select asp-for="Filters.BarberId" asp-items="Model.BarberOptions" class="form-control">
+                    <option value="">Todos</option>
+                </select>
+            </label>
+
+            <label class="form-group">
+                Status
+                <select asp-for="Filters.Status" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="Confirmed">Confirmado</option>
+                    <option value="Cancelled">Cancelado</option>
+                </select>
+            </label>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <button class="btn btn-primary" type="submit">Aplicar filtros</button>
+        </div>
     </form>
 </section>
 
 <section class="card light">
-    <h3>Resultados</h3>
+    <h3>Resultados (@Model.Items.Count agendamentos)</h3>
+
+    @if (!Model.Items.Any())
+    {
+    <p class="empty-state">Nenhum agendamento encontrado com os filtros selecionados.</p>
+    }
+    else
+    {
     <table class="tbl">
         <thead>
-            <tr><th>Data</th><th>Hora</th><th>Serviço</th><th>Barbeiro</th><th>Cliente</th><th>Status</th><th class="right">Ações</th></tr>
+        <tr>
+            <th>Data</th>
+            <th>Hora</th>
+            <th>Serviço</th>
+            <th>Barbeiro</th>
+            <th>Cliente</th>
+            <th>Status</th>
+            <th class="right">Ações</th>
+        </tr>
         </thead>
         <tbody>
         @foreach (var a in Model.Items)
         {
-            <tr>
-                <td>@a.Date.ToString("MM/dd/yyyy")</td>
-                <td>@a.StartTime.ToString("HH:mm")</td>
-                <td>@a.Service?.Name</td>
-                <td>@a.Barber?.Name</td>
-                <td>@a.CustomerEmail<br/><small>@a.CustomerPhone</small></td>
-                <td>@a.Status</td>
-                <td class="right">
-                    @if (a.Status == BarberNetBooking.Models.AppointmentStatus.Confirmed)
-                    {
-                        <form method="post" asp-page-handler="Cancel" style="display:inline">
-                            <input type="hidden" name="id" value="@a.Id" />
-                            <button class="btn" type="submit">Cancelar</button>
-                        </form>
-                        <details style="display:inline-block; margin-left:8px;">
-                            <summary>Remarcar</summary>
-                            <form method="post" asp-page-handler="Reschedule">
-                                <input type="hidden" name="id" value="@a.Id" />
-                                <label>Data<input name="date" type="date" value="@Model.DefaultRescheduleDate.ToString("yyyy-MM-dd")"/></label>
-                                <label>Hora<input name="time" type="time" step="1800" value="09:00"/></label>
-                                <button class="btn" type="submit">Salvar</button>
-                            </form>
-                        </details>
-                    }
-                </td>
-            </tr>
+        <tr>
+            <td>@a.Date.ToBrazilianDate()</td>
+            <td>@a.StartTime.ToDisplayTime()</td>
+            <td>@a.Service?.Name</td>
+            <td>@a.Barber?.Name</td>
+            <td>
+                @a.CustomerEmail<br />
+                <small>@a.CustomerPhone</small>
+            </td>
+            <td>
+                @if (a.Status == BarberNetBooking.Models.AppointmentStatus.Confirmed)
+                {
+                <span class="status-badge status-confirmed">✓ Confirmado</span>
+                }
+                else
+                {
+                <span class="status-badge status-cancelled">✗ Cancelado</span>
+                }
+            </td>
+            <td class="right">
+                @if (a.Status == BarberNetBooking.Models.AppointmentStatus.Confirmed)
+                {
+                <form method="post" asp-page-handler="Cancel" style="display:inline">
+                    <input type="hidden" name="id" value="@a.Id" />
+                    <button class="btn btn-danger" type="submit"
+                            onclick="return confirm('Deseja cancelar este agendamento?');">
+                        Cancelar
+                    </button>
+                </form>
+
+                <details style="display:inline-block; margin-left:8px;">
+                    <summary>Remarcar</summary>
+                    <form method="post" asp-page-handler="Reschedule" class="mt-2">
+                        <input type="hidden" name="id" value="@a.Id" />
+                        <div class="mb-2">
+                            <label class="form-label d-block">Data</label>
+                            <input name="date"
+                                   type="text"
+                                   class="form-control js-date"
+                                   placeholder="dd/mm/aaaa"
+                                   autocomplete="off"
+                                   value="@a.Date.ToString("dd/MM/yyyy")" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label d-block">Hora</label>
+                            <input name="time"
+                                   class="form-control"
+                                   placeholder="HH:mm"
+                                   value="@a.StartTime.ToDisplayTime()" />
+                        </div>
+                        <button class="btn btn-primary" type="submit">Salvar</button>
+                    </form>
+                </details>
+                }
+            </td>
+        </tr>
         }
         </tbody>
     </table>
+    }
 </section>
+
+@section Scripts {
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Inicializa todos os campos .js-date no padrão dd/MM/yyyy
+        flatpickr(".js-date", {
+            dateFormat: "d/m/Y",   // dd/MM/yyyy
+            locale: flatpickr.l10ns.pt,
+            allowInput: false,     // evita digitação manual incorreta
+            clickOpens: true,
+            disableMobile: true
+        });
+
+        // Abre o calendário ao focar/clicar (conveniência)
+        document.querySelectorAll(".js-date").forEach(function (el) {
+            el.addEventListener("focus", function () { if (el._flatpickr) el._flatpickr.open(); });
+            el.addEventListener("click", function () { if (el._flatpickr) el._flatpickr.open(); });
+        });
+    });
+</script>
+}

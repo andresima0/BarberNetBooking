@@ -1,46 +1,74 @@
-﻿@*
-  Layout principal (cliente + links condicionais para Admin)
-*@
-@{
-    var title = ViewData["Title"] as string ?? "BarberNet";
-    var isAdmin = Context?.Request?.Cookies["bn_admin"] == "ok";
-}
-<!DOCTYPE html>
-<html lang="pt-br">
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@title — BarberNet</title>
-    <link rel="stylesheet" href="/css/site.css" />
-    <link rel="icon" href="/favicon.ico" />
+    <title>@ViewData["Title"] - BarberNet</title>
+    
+    <!-- Estilos globais -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    
+    <!-- CSS do Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    @RenderSection("Styles", required: false)
 </head>
 <body>
-<header class="container header">
-    <div class="brand">
-        <a href="/"><img src="/img/logo.png" alt="BarberNet" class="logo" /></a>
-        <h1 style="margin:0">BarberNet</h1>
+@{
+    // Verifica se é admin via cookie
+    var isAdmin = Context?.Request?.Cookies["bn_admin"] == "ok";
+    var currentPath = ViewContext?.HttpContext?.Request?.Path.Value?.ToLowerInvariant() ?? "/";
+    var isAdminArea = currentPath.StartsWith("/admin");
+}
+
+<header class="topbar">
+    <div class="container topbar-inner">
+        <div class="brand">
+            <a asp-page="/Index" class="brand-link">
+                <img src="~/img/logo.png" alt="BarberNet" class="logo" />
+                <span class="brand-name">BarberNet</span>
+            </a>
+        </div>
+
+        <nav class="tabs">
+            <a asp-page="/Index" class="@(currentPath == "/" ? "active" : "")">
+                Agendar
+            </a>
+            @if (isAdmin)
+            {
+                <a asp-page="/Admin/Index" class="@(isAdminArea ? "active" : "")">
+                    Admin
+                </a>
+                <a asp-page="/Admin/Logout">
+                    Sair
+                </a>
+            }
+            else
+            {
+                <a asp-page="/Admin/Login" class="@(currentPath == "/admin/login" ? "active" : "")">
+                    Entrar (Admin)
+                </a>
+            }
+        </nav>
     </div>
-    <nav>
-        <a href="/">Agendar</a>
-        @if (isAdmin)
-        {
-            <a href="/Admin">Admin</a>
-            <a href="/Admin/Logout">Sair</a>
-        }
-        else
-        {
-            <a href="/Admin/Login">Entrar (Admin)</a>
-        }
-    </nav>
 </header>
 
 <main class="container">
     @RenderBody()
 </main>
 
-<footer class="container foot">
-    <small>© @DateTime.Now.Year BarberNet — Todos os direitos reservados.</small>
+<footer class="site-footer">
+    <div class="container foot-inner">
+        <p>&copy; @DateTime.Now.Year BarberNet — Todos os direitos reservados</p>
+    </div>
 </footer>
+
+<!-- Scripts globais -->
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+<!-- JS do Flatpickr -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
 
 @RenderSection("Scripts", required: false)
 </body>
