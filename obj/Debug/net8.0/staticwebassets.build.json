@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "+Qfghh27z7U+3qWFqoCnmoYar5hn5K6W41V1HVxh0rI=",
+  "Hash": "LZ788hEd164hxHIk44n62AyLIk+v3K68AeuDuYrcA5M=",
   "Source": "BarberNetBooking",
   "BasePath": "_content/BarberNetBooking",
   "Mode": "Default",
@@ -16,44 +16,6 @@
     }
   ],
   "Assets": [
-    {
-      "Identity": "D:\\1-ANDRE SIMAO\\1-Estudo\\2-UNIVESP\\3 Semestre\\PI-II\\JetBrainsProjects\\BarbernetBooking\\BarberNetBooking\\obj\\Debug\\net8.0\\scopedcss\\bundle\\BarberNetBooking.styles.css",
-      "SourceId": "BarberNetBooking",
-      "SourceType": "Computed",
-      "ContentRoot": "D:\\1-ANDRE SIMAO\\1-Estudo\\2-UNIVESP\\3 Semestre\\PI-II\\JetBrainsProjects\\BarbernetBooking\\BarberNetBooking\\obj\\Debug\\net8.0\\scopedcss\\bundle\\",
-      "BasePath": "_content/BarberNetBooking",
-      "RelativePath": "BarberNetBooking.styles.css",
-      "AssetKind": "All",
-      "AssetMode": "CurrentProject",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "ScopedCss",
-      "AssetTraitValue": "ApplicationBundle",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "D:\\1-ANDRE SIMAO\\1-Estudo\\2-UNIVESP\\3 Semestre\\PI-II\\JetBrainsProjects\\BarbernetBooking\\BarberNetBooking\\obj\\Debug\\net8.0\\scopedcss\\bundle\\BarberNetBooking.styles.css"
-    },
-    {
-      "Identity": "D:\\1-ANDRE SIMAO\\1-Estudo\\2-UNIVESP\\3 Semestre\\PI-II\\JetBrainsProjects\\BarbernetBooking\\BarberNetBooking\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\BarberNetBooking.bundle.scp.css",
-      "SourceId": "BarberNetBooking",
-      "SourceType": "Computed",
-      "ContentRoot": "D:\\1-ANDRE SIMAO\\1-Estudo\\2-UNIVESP\\3 Semestre\\PI-II\\JetBrainsProjects\\BarbernetBooking\\BarberNetBooking\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\",
-      "BasePath": "_content/BarberNetBooking",
-      "RelativePath": "BarberNetBooking.bundle.scp.css",
-      "AssetKind": "All",
-      "AssetMode": "Reference",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "ScopedCss",
-      "AssetTraitValue": "ProjectBundle",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "D:\\1-ANDRE SIMAO\\1-Estudo\\2-UNIVESP\\3 Semestre\\PI-II\\JetBrainsProjects\\BarbernetBooking\\BarberNetBooking\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\BarberNetBooking.bundle.scp.css"
-    },
     {
       "Identity": "D:\\1-ANDRE SIMAO\\1-Estudo\\2-UNIVESP\\3 Semestre\\PI-II\\JetBrainsProjects\\BarbernetBooking\\BarberNetBooking\\wwwroot\\css\\site.css",
       "SourceId": "BarberNetBooking",
