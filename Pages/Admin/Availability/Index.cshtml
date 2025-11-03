@@ -34,11 +34,11 @@
                 <tr>
                     <td>@Model.GetDayName(Model.Week[i].DayOfWeek)</td>
                     <td>
-                        <input asp-for="Week[i].StartTime" type="time" step="1800" />
+                        <input asp-for="Week[i].StartTime" type="time" step="900" />
                         <input type="hidden" asp-for="Week[i].DayOfWeek" />
                     </td>
                     <td>
-                        <input asp-for="Week[i].EndTime" type="time" step="1800" />
+                        <input asp-for="Week[i].EndTime" type="time" step="900" />
                     </td>
                     <td>
                         <select asp-for="Week[i].IsClosed">

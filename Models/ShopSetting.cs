@@ -3,5 +3,5 @@
 public class ShopSetting
 {
     public int Id { get; set; }
-    public int SlotMinutes { get; set; } = 30;
+    public int SlotMinutes { get; set; } = 15;
 }

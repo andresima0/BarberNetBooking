@@ -40,9 +40,18 @@ ViewData["Title"] = "Serviços";
             <td>
                 <input name="Service[@service.Id].Price" type="number" step="0.01" value="@service.Price" />
             </td>
-            <!-- Campo para editar a duração -->
+            <!-- Select para editar a duração -->
             <td>
-                <input name="Service[@service.Id].DurationMinutes" type="number" value="@service.DurationMinutes" />
+                <select name="Service[@service.Id].DurationMinutes">
+                    <option value="15" selected="@(service.DurationMinutes == 15)">15 min</option>
+                    <option value="30" selected="@(service.DurationMinutes == 30)">30 min</option>
+                    <option value="45" selected="@(service.DurationMinutes == 45)">45 min</option>
+                    <option value="60" selected="@(service.DurationMinutes == 60)">1h</option>
+                    <option value="75" selected="@(service.DurationMinutes == 75)">1h 15min</option>
+                    <option value="90" selected="@(service.DurationMinutes == 90)">1h 30min</option>
+                    <option value="105" selected="@(service.DurationMinutes == 105)">1h 45min</option>
+                    <option value="120" selected="@(service.DurationMinutes == 120)">2h</option>
+                </select>
             </td>
             <td class="right">
                 <!-- Formulário para salvar alterações -->
@@ -79,7 +88,16 @@ ViewData["Title"] = "Serviços";
             </label>
 
             <label>Duração (minutos)
-                <input asp-for="Input.DurationMinutes" type="number" placeholder="Duração em minutos" />
+                <select asp-for="Input.DurationMinutes">
+                    <option value="15">15 minutos</option>
+                    <option value="30" selected>30 minutos</option>
+                    <option value="45">45 minutos</option>
+                    <option value="60">1 hora</option>
+                    <option value="75">1 hora e 15 min</option>
+                    <option value="90">1 hora e 30 min</option>
+                    <option value="105">1 hora e 45 min</option>
+                    <option value="120">2 horas</option>
+                </select>
             </label>
         </div>
 
@@ -95,6 +113,6 @@ ViewData["Title"] = "Serviços";
         document.getElementById('hiddenPrice_' + serviceId).value =
             document.querySelector('input[name="Service[' + serviceId + '].Price"]').value;
         document.getElementById('hiddenDuration_' + serviceId).value =
-            document.querySelector('input[name="Service[' + serviceId + '].DurationMinutes"]').value;
+            document.querySelector('select[name="Service[' + serviceId + '].DurationMinutes"]').value;
     }
 </script>

@@ -17,7 +17,7 @@ public sealed class SlotService : ISlotService
     public async Task<IReadOnlyList<TimeOnly>> GetAvailableSlotsAsync(int barberId, DateOnly date, int? serviceDuration = null)
     {
         var setting = await _db.Settings.AsNoTracking().FirstOrDefaultAsync()
-                      ?? new ShopSetting { SlotMinutes = 30 };
+                      ?? new ShopSetting { SlotMinutes = 15 };
 
         var dow = date.ToDateTime(TimeOnly.MinValue).DayOfWeek;
         var rule = await _db.WorkingHours.AsNoTracking()
@@ -30,7 +30,7 @@ public sealed class SlotService : ISlotService
             return Array.Empty<TimeOnly>();
 
         var slot = TimeSpan.FromMinutes(setting.SlotMinutes);
-        var duration = TimeSpan.FromMinutes(serviceDuration ?? 30);
+        var duration = TimeSpan.FromMinutes(serviceDuration ?? 15);
 
         var times = new List<TimeOnly>();
         for (var t = rule.StartTime.ToTimeSpan(); t + duration <= rule.EndTime.ToTimeSpan(); t += slot)
@@ -38,7 +38,7 @@ public sealed class SlotService : ISlotService
 
         var taken = await _db.Appointments.AsNoTracking()
             .Where(a => a.BarberId == barberId && a.Date == date && a.Status == AppointmentStatus.Confirmed)
-            .Select(a => a.StartTime) // CORRIGIDO: era a.Time, agora é a.StartTime
+            .Select(a => a.StartTime)
             .ToListAsync();
 
         var now = DateTime.Now;
