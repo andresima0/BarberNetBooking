@@ -15,7 +15,14 @@ public class IndexModel : PageModel
 {
     private readonly AppDbContext _db;
     private readonly ISlotService _slots;
-    public IndexModel(AppDbContext db, ISlotService slots) { _db = db; _slots = slots; }
+    private readonly IEmailService _emailService;
+
+    public IndexModel(AppDbContext db, ISlotService slots, IEmailService emailService)
+    {
+        _db = db;
+        _slots = slots;
+        _emailService = emailService;
+    }
 
     public List<Appointment> Items { get; set; } = new();
     public SelectList BarberOptions { get; set; } = default!;
@@ -58,18 +65,45 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostCancelAsync(int id)
     {
-        var a = await _db.Appointments.FindAsync(id);
+        var a = await _db.Appointments
+            .Include(x => x.Service)
+            .Include(x => x.Barber)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
         if (a == null) return NotFound();
+
         a.Status = AppointmentStatus.Cancelled;
         await _db.SaveChangesAsync();
+
+        // Envia e-mail de cancelamento
+        try
+        {
+            if (a.Service != null && a.Barber != null)
+            {
+                await _emailService.SendAppointmentCancellationAsync(a, a.Service, a.Barber);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao enviar e-mail de cancelamento: {ex.Message}");
+        }
+
         SuccessMessage = "Agendamento cancelado com sucesso.";
         return RedirectToPage();
     }
 
     public async Task<IActionResult> OnPostRescheduleAsync(int id, DateOnly date, TimeOnly time)
     {
-        var a = await _db.Appointments.FindAsync(id);
+        var a = await _db.Appointments
+            .Include(x => x.Service)
+            .Include(x => x.Barber)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
         if (a == null) return NotFound();
+
+        // Salva dados antigos para o e-mail
+        var oldDate = a.Date;
+        var oldTime = a.StartTime;
 
         // checa conflito
         var conflict = await _db.Appointments.AnyAsync(x => 
@@ -91,6 +125,20 @@ public class IndexModel : PageModel
         a.Time = time.ToTimeSpan();
         a.Status = AppointmentStatus.Confirmed;
         await _db.SaveChangesAsync();
+
+        // Envia e-mail de remarcação
+        try
+        {
+            if (a.Service != null && a.Barber != null)
+            {
+                await _emailService.SendAppointmentRescheduleAsync(a, a.Service, a.Barber, oldDate, oldTime);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao enviar e-mail de remarcação: {ex.Message}");
+        }
+
         SuccessMessage = "Agendamento remarcado com sucesso.";
         return RedirectToPage();
     }
@@ -109,6 +157,8 @@ public class IndexModel : PageModel
         try
         {
             var appointmentsToDelete = await _db.Appointments
+                .Include(a => a.Service)
+                .Include(a => a.Barber)
                 .Where(a => selectedIds.Contains(a.Id))
                 .ToListAsync();
 
@@ -119,6 +169,22 @@ public class IndexModel : PageModel
             }
 
             var count = appointmentsToDelete.Count;
+
+            // Envia e-mails de cancelamento antes de deletar
+            foreach (var appt in appointmentsToDelete)
+            {
+                try
+                {
+                    if (appt.Service != null && appt.Barber != null && appt.Status == AppointmentStatus.Confirmed)
+                    {
+                        await _emailService.SendAppointmentCancellationAsync(appt, appt.Service, appt.Barber);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erro ao enviar e-mail para agendamento {appt.Id}: {ex.Message}");
+                }
+            }
 
             _db.Appointments.RemoveRange(appointmentsToDelete);
             await _db.SaveChangesAsync();

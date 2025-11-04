@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("cd62c006-041c-453c-a003-f9027d98c446")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("BarberNetBooking")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+306dc3c3cdccb65382d3c762d0ca13a33fc25fc9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0ff9a47ac38d93e691d78aa66cb10659f81e9e13")]
 [assembly: System.Reflection.AssemblyProductAttribute("BarberNetBooking")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BarberNetBooking")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

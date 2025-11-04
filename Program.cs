@@ -18,6 +18,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // DI de serviços de domínio
 builder.Services.AddScoped<ISlotService, SlotService>();
 builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Razor Pages com localização
 builder.Services.AddRazorPages()
