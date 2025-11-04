@@ -142,7 +142,7 @@ public class AvailabilityService : IAvailabilityService
             .OrderBy(a => a.StartTime)
             .ToListAsync();
 
-        // Gera slots de 30 em 30 minutos
+        // Gera slots de 15 em 15 minutos
         var currentTime = workingHour.StartTime;
         var serviceDuration = TimeSpan.FromMinutes(serviceDurationMinutes);
         var endTimeSpan = workingHour.EndTime.ToTimeSpan();
@@ -163,8 +163,8 @@ public class AvailabilityService : IAvailabilityService
                 availableSlots.Add(currentTime);
             }
 
-            // Avança 30 minutos
-            currentTime = TimeOnly.FromTimeSpan(currentTime.ToTimeSpan().Add(TimeSpan.FromMinutes(30)));
+            // Avança 15 minutos
+            currentTime = TimeOnly.FromTimeSpan(currentTime.ToTimeSpan().Add(TimeSpan.FromMinutes(15)));
         }
 
         return availableSlots;

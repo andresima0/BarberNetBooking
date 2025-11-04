@@ -14,11 +14,13 @@ public class IndexModel : PageModel
 {
     private readonly AppDbContext _db;
     private readonly IAvailabilityService _availabilityService;
+    private readonly IEmailService _emailService;
 
-    public IndexModel(AppDbContext db, IAvailabilityService availabilityService)
+    public IndexModel(AppDbContext db, IAvailabilityService availabilityService, IEmailService emailService)
     {
         _db = db;
         _availabilityService = availabilityService;
+        _emailService = emailService;
     }
 
     // Tabela de serviços e combos
@@ -96,7 +98,7 @@ public class IndexModel : PageModel
         }
 
         var barber = await _db.Barbers.FindAsync(Input.BarberId);
-        if (barber is null /* || !barber.IsActive */)
+        if (barber is null)
         {
             ErrorMessage = "Barbeiro inválido.";
             await LoadOptionsAsync();
@@ -124,7 +126,7 @@ public class IndexModel : PageModel
             Date          = Input.Date,
             StartTime     = Input.StartTime,
             EndTime       = endTime,
-            Time          = Input.StartTime.ToTimeSpan(), // persistir como TimeSpan (compatível com EF/SQLite)
+            Time          = Input.StartTime.ToTimeSpan(),
             CustomerEmail = Input.CustomerEmail.Trim(),
             CustomerPhone = Input.CustomerPhone.Trim(),
             Status        = AppointmentStatus.Confirmed,
@@ -135,6 +137,17 @@ public class IndexModel : PageModel
         try
         {
             await _db.SaveChangesAsync();
+            
+            // Envia e-mail de confirmação
+            try
+            {
+                await _emailService.SendAppointmentConfirmationAsync(appointment, service, barber);
+            }
+            catch (Exception ex)
+            {
+                // Log do erro, mas não falha o agendamento
+                Console.WriteLine($"Erro ao enviar e-mail: {ex.Message}");
+            }
         }
         catch (DbUpdateException)
         {
@@ -143,8 +156,8 @@ public class IndexModel : PageModel
             return Page();
         }
 
-        SuccessMessage = "Agendamento realizado com sucesso! Aguardamos você.";
-        return RedirectToPage(); // PRG
+        SuccessMessage = "Agendamento realizado com sucesso! Um e-mail de confirmação foi enviado.";
+        return RedirectToPage();
     }
 
     private async Task LoadOptionsAsync()
@@ -164,10 +177,8 @@ public class IndexModel : PageModel
         BarberOptions  = new SelectList(barbers, nameof(Barber.Id), nameof(Barber.Name));
     }
 
-    // Handler chamado via fetch (?handler=AvailableSlots)
     public async Task<IActionResult> OnGetAvailableSlotsAsync(int barberId, int serviceId, string date)
     {
-        // Tenta ISO (yyyy-MM-dd), depois pt-BR (dd/MM/yyyy) e por fim parsing padrão
         if (!DateOnly.TryParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate) &&
             !DateOnly.TryParseExact(date, "dd/MM/yyyy", new CultureInfo("pt-BR"), DateTimeStyles.None, out parsedDate) &&
             !DateOnly.TryParse(date, out parsedDate))

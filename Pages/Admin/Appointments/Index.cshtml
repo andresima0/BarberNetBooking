@@ -59,7 +59,23 @@ ViewData["Title"] = "Agendamentos";
 </section>
 
 <section class="card light">
-    <h3>Resultados (@Model.Items.Count agendamentos)</h3>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="margin: 0;">Resultados (@Model.Items.Count agendamentos)</h3>
+
+        <div style="display: flex; gap: 12px;">
+            <button type="button" class="btn" id="toggleDeleteMode" onclick="toggleDeleteMode()">
+                Selecionar para apagar
+            </button>
+
+            <button type="button" class="btn btn-danger" id="deleteSelectedBtn" style="display: none;" onclick="deleteSelected()">
+                Apagar selecionados
+            </button>
+
+            <button type="button" class="btn" id="cancelDeleteMode" style="display: none;" onclick="cancelDeleteMode()">
+                Cancelar
+            </button>
+        </div>
+    </div>
 
     @if (!Model.Items.Any())
     {
@@ -70,6 +86,9 @@ ViewData["Title"] = "Agendamentos";
     <table class="tbl">
         <thead>
         <tr>
+            <th id="checkboxHeader" style="display: none; width: 40px;">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" />
+            </th>
             <th>Data</th>
             <th>Hora</th>
             <th>Serviço</th>
@@ -83,6 +102,13 @@ ViewData["Title"] = "Agendamentos";
         @foreach (var a in Model.Items)
         {
         <tr>
+            <td class="checkbox-cell" style="display: none;">
+                <input type="checkbox"
+                       name="selectedIds"
+                       value="@a.Id"
+                       class="appointment-checkbox"
+                       form="deleteForm" />
+            </td>
             <td>@a.Date.ToBrazilianDate()</td>
             <td>@a.StartTime.ToDisplayTime()</td>
             <td>@a.Service?.Name</td>
@@ -101,7 +127,7 @@ ViewData["Title"] = "Agendamentos";
                 <span class="status-badge status-cancelled">✗ Cancelado</span>
                 }
             </td>
-            <td class="right">
+            <td class="right action-cell">
                 @if (a.Status == BarberNetBooking.Models.AppointmentStatus.Confirmed)
                 {
                 <form method="post" asp-page-handler="Cancel" style="display:inline">
@@ -141,6 +167,11 @@ ViewData["Title"] = "Agendamentos";
         }
         </tbody>
     </table>
+
+    <!-- Form dedicado à exclusão múltipla (fora da tabela; sem inputs próprios) -->
+    <form method="post" asp-page-handler="DeleteMultiple" id="deleteForm">
+        @Html.AntiForgeryToken()
+    </form>
     }
 </section>
 
@@ -153,18 +184,116 @@ ViewData["Title"] = "Agendamentos";
     document.addEventListener('DOMContentLoaded', function () {
         // Inicializa todos os campos .js-date no padrão dd/MM/yyyy
         flatpickr(".js-date", {
-            dateFormat: "d/m/Y",   // dd/MM/yyyy
+            dateFormat: "d/m/Y",
             locale: flatpickr.l10ns.pt,
-            allowInput: false,     // evita digitação manual incorreta
+            allowInput: false,
             clickOpens: true,
             disableMobile: true
         });
 
-        // Abre o calendário ao focar/clicar (conveniência)
         document.querySelectorAll(".js-date").forEach(function (el) {
             el.addEventListener("focus", function () { if (el._flatpickr) el._flatpickr.open(); });
             el.addEventListener("click", function () { if (el._flatpickr) el._flatpickr.open(); });
         });
     });
+
+    let isDeleteMode = false;
+
+    function toggleDeleteMode() {
+        isDeleteMode = true;
+
+        // Mostra checkboxes
+        document.getElementById('checkboxHeader').style.display = 'table-cell';
+        document.querySelectorAll('.checkbox-cell').forEach(cell => {
+            cell.style.display = 'table-cell';
+        });
+
+        // Esconde ações normais
+        document.querySelectorAll('.action-cell').forEach(cell => {
+            cell.style.display = 'none';
+        });
+
+        // Atualiza botões
+        document.getElementById('toggleDeleteMode').style.display = 'none';
+        document.getElementById('deleteSelectedBtn').style.display = 'inline-block';
+        document.getElementById('cancelDeleteMode').style.display = 'inline-block';
+    }
+
+    function cancelDeleteMode() {
+        isDeleteMode = false;
+
+        // Esconde checkboxes
+        document.getElementById('checkboxHeader').style.display = 'none';
+        document.querySelectorAll('.checkbox-cell').forEach(cell => {
+            cell.style.display = 'none';
+        });
+
+        // Mostra ações normais
+        document.querySelectorAll('.action-cell').forEach(cell => {
+            cell.style.display = 'table-cell';
+        });
+
+        // Atualiza botões
+        document.getElementById('toggleDeleteMode').style.display = 'inline-block';
+        document.getElementById('deleteSelectedBtn').style.display = 'none';
+        document.getElementById('cancelDeleteMode').style.display = 'none';
+
+        // Desmarca todos
+        document.getElementById('selectAll').checked = false;
+        document.querySelectorAll('.appointment-checkbox').forEach(cb => {
+            cb.checked = false;
+        });
+    }
+
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        document.querySelectorAll('.appointment-checkbox').forEach(cb => {
+            cb.checked = selectAll.checked;
+        });
+    }
+
+    function deleteSelected() {
+        const checkboxes = document.querySelectorAll('.appointment-checkbox:checked');
+
+        if (checkboxes.length === 0) {
+            alert('Selecione pelo menos um agendamento para apagar.');
+            return;
+        }
+
+        const count = checkboxes.length;
+        const confirmMsg = count === 1
+            ? 'Tem certeza que deseja apagar 1 agendamento? Esta ação não pode ser desfeita.'
+            : `Tem certeza que deseja apagar ${count} agendamentos? Esta ação não pode ser desfeita.`;
+
+        if (confirm(confirmMsg)) {
+            document.getElementById('deleteForm').submit();
+        }
+    }
 </script>
+
+<style>
+    .checkbox-cell {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .appointment-checkbox,
+    #selectAll {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    #checkboxHeader {
+        text-align: center;
+    }
+
+    .btn-danger {
+        background: linear-gradient(90deg, var(--danger), #dc2626);
+    }
+
+    .btn-danger:hover {
+        filter: brightness(1.1);
+    }
+</style>
 }

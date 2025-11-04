@@ -64,7 +64,7 @@ As **migrações** são uma forma de atualizar o banco de dados sempre que o mod
 
 O EF Core cria automaticamente uma pasta `Migrations` contendo os arquivos de migração. O arquivo `AppDbContextModelSnapshot.cs` mantém uma "foto" do estado atual do banco de dados para comparação com as migrações futuras.
 
-## Estrutura de Arquivos e Diretórios
+## Estrutura dos Principais Arquivos e Diretórios
 
 O projeto possui a seguinte estrutura:
 
@@ -72,27 +72,35 @@ O projeto possui a seguinte estrutura:
 BarberNetBooking/
 ├─ Program.cs                        // Configuração do app (DB, DI, etc.)
 ├─ appsettings.json                  // Configurações (incluindo PIN do Admin)
+├─ barbernet.db
 ├─ Data/
 │  ├─ AppDbContext.cs              // Configuração do banco de dados (DbSets)
 │  └─ DbInitializer.cs             // População inicial do banco (seed)
+├─ Documentation/
+│  └─ EmailService.md
+├─ Helpers/
+│  └─ DateExtensions.cs
 ├─ Infrastructure/
 │  └─ AdminAuthorizeAttribute.cs  // Autenticação via PIN do Admin (cookie)
+│  └─ DateOnlyBinder.cs  
 ├─ Services/
 │  └─ SlotService.cs              // Serviço para gerar horários disponíveis
 │  └─ AvailabilityService.cs
 ├─ Models/
-│  ├─ Service.cs                  // Modelo de serviços (nome, preço, duração, ativo)
-│  ├─ Barber.cs                   // Modelo de barbeiros
 │  ├─ Appointment.cs               // Modelo de agendamento (status, cliente, data/hora)
 │  ├─ AppointmentStatus.cs         // Enum de status de agendamento (Confirmado/Cancelado)
-│  ├─ BarberWorkingHour.cs         // Horário de trabalho do barbeiro
+│  ├─ Barber.cs                   // Modelo de barbeiros 
 │  ├─ BarberTimeOff.cs             // Folgas do barbeiro
+│  ├─ BarberWorkingHour.cs         // Horário de trabalho do barbeiro
+│  ├─ Service.cs                  // Modelo de serviços (nome, preço, duração, ativo)
 │  └─ ShopSetting.cs               // Configurações da barbearia (ex.: intervalo de agendamento)
 ├─ Pages/
 │  ├─ Index.cshtml                // Página de agendamento para clientes
 │  ├─ Shared/
 │  │  ├─ _Layout.cshtml          // Layout principal (menu Agendar/Entrar Admin)
-│  │  └─ _AdminLayout.cshtml      // Layout Admin
+│  │  ├─ _AdminLayout.cshtml      // Layout Admin
+│  │  ├─ _ValidationScriptsPartial.cshtml
+│  │  └─ _ValidationSummary.cshtml 
 │  └─ Admin/
 │     ├─ Login.cshtml             // Aba e página de login do Admin
 │     ├─ Logout.cshtml            // Aba para sair da Página de login do Admin
@@ -119,10 +127,7 @@ BarberNetBooking/
 └─ Migrations/
    ├─ ..._InitialCreate.cs  // Migração inicial (tabelas e colunas)
    │ └─ ..._InitialCreate.Designer.cs
-   ├─ ..._UniqueAppointmentsIndex.cs
-   │ └─ ..._UniqueAppointmentIndex.Designer.cs
-   ├─ ..._MapTimeOnlyToTricks.cs
-   │ └─ ..._MapTimeOnlyToTricks.Designer.cs
+   │ └─ ...
    └─ AppDbContextModelSnapshot.cs // Snapshot do banco de dados
 ```
 

@@ -14,7 +14,16 @@
 
 <div class="mb-3">
     <label asp-for="DurationMinutes" class="form-label">Duração (minutos)</label>
-    <input asp-for="DurationMinutes" class="form-control" />
+    <select asp-for="DurationMinutes" class="form-control">
+        <option value="15">15 minutos</option>
+        <option value="30">30 minutos</option>
+        <option value="45">45 minutos</option>
+        <option value="60">1 hora</option>
+        <option value="75">1 hora e 15 min</option>
+        <option value="90">1 hora e 30 min</option>
+        <option value="105">1 hora e 45 min</option>
+        <option value="120">2 horas</option>
+    </select>
     <span asp-validation-for="DurationMinutes" class="text-danger"></span>
 </div>
 

@@ -10,7 +10,12 @@
     <form method="post">
         <div class="grid">
             <label>Granularidade dos horários (min)
-                <input asp-for="Input.SlotMinutes" type="number" min="5" max="120" />
+                <select asp-for="Input.SlotMinutes" class="form-control">
+                    <option value="15">15 minutos</option>
+                    <option value="30">30 minutos</option>
+                    <option value="60">60 minutos</option>
+                </select>
+                <small class="form-text">Define o intervalo entre horários disponíveis para agendamento</small>
             </label>
         </div>
         <button class="btn" type="submit">Salvar</button>
