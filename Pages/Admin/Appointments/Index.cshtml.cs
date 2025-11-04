@@ -22,6 +22,12 @@ public class IndexModel : PageModel
     [BindProperty(SupportsGet = true)] public FilterInput Filters { get; set; } = new();
     public DateOnly DefaultRescheduleDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
 
+    [TempData]
+    public string? SuccessMessage { get; set; }
+    
+    [TempData]
+    public string? ErrorMessage { get; set; }
+
     public class FilterInput
     {
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
@@ -47,7 +53,7 @@ public class IndexModel : PageModel
         if (!string.IsNullOrWhiteSpace(Filters.Status) && Enum.TryParse<AppointmentStatus>(Filters.Status, out var st))
             q = q.Where(a => a.Status == st);
 
-        Items = await q.OrderBy(a => a.Date).ThenBy(a => a.StartTime).ToListAsync(); // CORRIGIDO
+        Items = await q.OrderBy(a => a.Date).ThenBy(a => a.StartTime).ToListAsync();
     }
 
     public async Task<IActionResult> OnPostCancelAsync(int id)
@@ -56,6 +62,7 @@ public class IndexModel : PageModel
         if (a == null) return NotFound();
         a.Status = AppointmentStatus.Cancelled;
         await _db.SaveChangesAsync();
+        SuccessMessage = "Agendamento cancelado com sucesso.";
         return RedirectToPage();
     }
 
@@ -64,26 +71,67 @@ public class IndexModel : PageModel
         var a = await _db.Appointments.FindAsync(id);
         if (a == null) return NotFound();
 
-        // checa conflito - CORRIGIDO: compara StartTime com time (ambos TimeOnly)
+        // checa conflito
         var conflict = await _db.Appointments.AnyAsync(x => 
             x.Id != id && 
             x.BarberId == a.BarberId && 
             x.Date == date && 
-            x.StartTime == time && // CORRIGIDO
+            x.StartTime == time && 
             x.Status == AppointmentStatus.Confirmed);
             
         if (conflict)
         {
-            ModelState.AddModelError(string.Empty, "Horário em conflito para este barbeiro.");
+            ErrorMessage = "Horário em conflito para este barbeiro.";
             await OnGetAsync();
             return Page();
         }
         
         a.Date = date;
-        a.StartTime = time; // CORRIGIDO
-        a.Time = time.ToTimeSpan(); // CORRIGIDO: mantém campo legado
+        a.StartTime = time;
+        a.Time = time.ToTimeSpan();
         a.Status = AppointmentStatus.Confirmed;
         await _db.SaveChangesAsync();
+        SuccessMessage = "Agendamento remarcado com sucesso.";
+        return RedirectToPage();
+    }
+
+    /// <summary>
+    /// Handler para deletar múltiplos agendamentos
+    /// </summary>
+    public async Task<IActionResult> OnPostDeleteMultipleAsync(List<int> selectedIds)
+    {
+        if (selectedIds == null || !selectedIds.Any())
+        {
+            ErrorMessage = "Nenhum agendamento foi selecionado.";
+            return RedirectToPage();
+        }
+
+        try
+        {
+            var appointmentsToDelete = await _db.Appointments
+                .Where(a => selectedIds.Contains(a.Id))
+                .ToListAsync();
+
+            if (!appointmentsToDelete.Any())
+            {
+                ErrorMessage = "Nenhum agendamento válido foi encontrado.";
+                return RedirectToPage();
+            }
+
+            var count = appointmentsToDelete.Count;
+
+            _db.Appointments.RemoveRange(appointmentsToDelete);
+            await _db.SaveChangesAsync();
+
+            SuccessMessage = count == 1 
+                ? "1 agendamento foi apagado com sucesso." 
+                : $"{count} agendamentos foram apagados com sucesso.";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erro ao apagar agendamentos: {ex.Message}";
+        }
+
         return RedirectToPage();
     }
 
