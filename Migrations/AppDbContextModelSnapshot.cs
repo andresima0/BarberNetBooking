@@ -132,6 +132,12 @@ namespace BarberNetBooking.Migrations
                     b.Property<bool>("IsClosed")
                         .HasColumnType("INTEGER");
 
+                    b.Property<TimeSpan?>("LunchEndTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<TimeSpan?>("LunchStartTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("TEXT");
 

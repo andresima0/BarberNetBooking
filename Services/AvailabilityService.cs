@@ -71,17 +71,33 @@ public class AvailabilityService : IAvailabilityService
             return (false, $"Horário fora do expediente. Atendimento: {workingHour.StartTime:HH\\:mm} às {workingHour.EndTime:HH\\:mm}.");
         }
 
-        // 4. Verifica conflitos com outros agendamentos confirmados
+        // 4. Verifica conflito com horário de almoço
+        if (workingHour.LunchStartTime.HasValue && workingHour.LunchEndTime.HasValue)
+        {
+            var lunchStart = workingHour.LunchStartTime.Value;
+            var lunchEnd = workingHour.LunchEndTime.Value;
+
+            // Verifica se o agendamento solicitado sobrepõe o horário de almoço
+            var overlapsLunch = (startTime >= lunchStart && startTime < lunchEnd) ||  // Início durante almoço
+                               (endTime > lunchStart && endTime <= lunchEnd) ||       // Fim durante almoço
+                               (startTime <= lunchStart && endTime >= lunchEnd);      // Engloba almoço
+
+            if (overlapsLunch)
+            {
+                return (false, $"Horário de almoço. Intervalo: {lunchStart:HH\\:mm} às {lunchEnd:HH\\:mm}.");
+            }
+        }
+
+        // 5. Verifica conflitos com outros agendamentos confirmados
         var hasConflict = await _db.Appointments
             .Where(a => a.BarberId == barberId 
                      && a.Date == date 
                      && a.Status == AppointmentStatus.Confirmed
                      && (excludeAppointmentId == null || a.Id != excludeAppointmentId))
             .AnyAsync(a => 
-                // Verifica se há sobreposição de horários
-                (startTime >= a.StartTime && startTime < a.EndTime) ||  // Início dentro de outro agendamento
-                (endTime > a.StartTime && endTime <= a.EndTime) ||      // Fim dentro de outro agendamento
-                (startTime <= a.StartTime && endTime >= a.EndTime)      // Engloba outro agendamento
+                (startTime >= a.StartTime && startTime < a.EndTime) ||
+                (endTime > a.StartTime && endTime <= a.EndTime) ||
+                (startTime <= a.StartTime && endTime >= a.EndTime)
             );
 
         if (hasConflict)
@@ -151,6 +167,18 @@ public class AvailabilityService : IAvailabilityService
         {
             var slotEndTime = TimeOnly.FromTimeSpan(currentTime.ToTimeSpan().Add(serviceDuration));
             
+            // Verifica conflito com horário de almoço
+            bool overlapsLunch = false;
+            if (workingHour.LunchStartTime.HasValue && workingHour.LunchEndTime.HasValue)
+            {
+                var lunchStart = workingHour.LunchStartTime.Value;
+                var lunchEnd = workingHour.LunchEndTime.Value;
+
+                overlapsLunch = (currentTime >= lunchStart && currentTime < lunchEnd) ||
+                               (slotEndTime > lunchStart && slotEndTime <= lunchEnd) ||
+                               (currentTime <= lunchStart && slotEndTime >= lunchEnd);
+            }
+
             // Verifica se este slot conflita com algum agendamento existente
             var hasConflict = existingAppointments.Any(a =>
                 (currentTime >= a.StartTime && currentTime < a.EndTime) ||
@@ -158,7 +186,7 @@ public class AvailabilityService : IAvailabilityService
                 (currentTime <= a.StartTime && slotEndTime >= a.EndTime)
             );
 
-            if (!hasConflict)
+            if (!hasConflict && !overlapsLunch)
             {
                 availableSlots.Add(currentTime);
             }

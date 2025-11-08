@@ -39,6 +39,8 @@ public class IndexModel : PageModel
         public DayOfWeek DayOfWeek { get; set; }
         public TimeOnly StartTime { get; set; } = new(9, 0);
         public TimeOnly EndTime { get; set; } = new(18, 0);
+        public TimeOnly? LunchStartTime { get; set; } = new(12, 0);
+        public TimeOnly? LunchEndTime { get; set; } = new(13, 0);
         public bool IsClosed { get; set; }
     }
 
@@ -97,6 +99,8 @@ public class IndexModel : PageModel
                 DayOfWeek = day,
                 StartTime = rule?.StartTime ?? new TimeOnly(9, 0),
                 EndTime = rule?.EndTime ?? new TimeOnly(18, 0),
+                LunchStartTime = rule?.LunchStartTime ?? new TimeOnly(12, 0),
+                LunchEndTime = rule?.LunchEndTime ?? new TimeOnly(13, 0),
                 IsClosed = rule?.IsClosed ?? (day == DayOfWeek.Sunday)
             });
         }
@@ -121,9 +125,34 @@ public class IndexModel : PageModel
                 await OnGetAsync();
                 return Page();
             }
+
+            // Valida horário de almoço
+            if (item.LunchStartTime.HasValue && item.LunchEndTime.HasValue)
+            {
+                if (item.LunchStartTime >= item.LunchEndTime)
+                {
+                    ErrorMessage = $"Horário de almoço inválido para {GetDayName(item.DayOfWeek)}: início deve ser antes do fim.";
+                    await OnGetAsync();
+                    return Page();
+                }
+
+                if (item.LunchStartTime < item.StartTime || item.LunchEndTime > item.EndTime)
+                {
+                    ErrorMessage = $"O horário de almoço de {GetDayName(item.DayOfWeek)} deve estar dentro do horário de trabalho.";
+                    await OnGetAsync();
+                    return Page();
+                }
+            }
+
+            // Se apenas um dos campos de almoço foi preenchido
+            if (item.LunchStartTime.HasValue != item.LunchEndTime.HasValue)
+            {
+                ErrorMessage = $"Para {GetDayName(item.DayOfWeek)}: preencha ambos os horários de almoço ou deixe ambos vazios.";
+                await OnGetAsync();
+                return Page();
+            }
         }
 
-        // Busca APENAS as regras deste barbeiro específico
         var existing = await _db.WorkingHours
             .Where(w => w.BarberId == SelectedBarberId)
             .ToListAsync();
@@ -144,6 +173,8 @@ public class IndexModel : PageModel
                     DayOfWeek = item.DayOfWeek,
                     StartTime = item.StartTime,
                     EndTime = item.EndTime,
+                    LunchStartTime = item.LunchStartTime,
+                    LunchEndTime = item.LunchEndTime,
                     IsClosed = item.IsClosed
                 });
             }
@@ -152,6 +183,8 @@ public class IndexModel : PageModel
                 // Atualiza regra existente
                 rule.StartTime = item.StartTime;
                 rule.EndTime = item.EndTime;
+                rule.LunchStartTime = item.LunchStartTime;
+                rule.LunchEndTime = item.LunchEndTime;
                 rule.IsClosed = item.IsClosed;
             }
         }

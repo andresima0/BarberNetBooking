@@ -26,31 +26,98 @@
     
     <form method="post" asp-page-handler="SaveWeek">
         <input type="hidden" asp-for="SelectedBarberId" />
-        <table class="tbl">
-            <thead><tr><th>Dia</th><th>Início</th><th>Fim</th><th>Status</th></tr></thead>
-            <tbody>
-            @for (int i = 0; i < Model.Week.Count; i++)
-            {
-                <tr>
-                    <td>@Model.GetDayName(Model.Week[i].DayOfWeek)</td>
-                    <td>
-                        <input asp-for="Week[i].StartTime" type="time" step="900" />
-                        <input type="hidden" asp-for="Week[i].DayOfWeek" />
-                    </td>
-                    <td>
-                        <input asp-for="Week[i].EndTime" type="time" step="900" />
-                    </td>
-                    <td>
-                        <select asp-for="Week[i].IsClosed">
-                            <option value="false">Aberto</option>
-                            <option value="true">Fechado</option>
-                        </select>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
-        <button class="btn" type="submit">Salvar semana</button>
+        <div style="overflow-x: auto;">
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th>Dia</th>
+                        <th>Início</th>
+                        <th>Almoço Início</th>
+                        <th>Almoço Fim</th>
+                        <th>Fim</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @for (int i = 0; i < Model.Week.Count; i++)
+                {
+                    <tr>
+                        <td><strong>@Model.GetDayName(Model.Week[i].DayOfWeek)</strong></td>
+                        <td>
+                            <select asp-for="Week[i].StartTime" 
+                                    style="min-width: 100px;"
+                                    class="form-control">
+                                @for (int h = 0; h < 24; h++)
+                                {
+                                    for (int m = 0; m < 60; m += 15)
+                                    {
+                                        var time = new TimeOnly(h, m);
+                                        <option value="@time.ToString("HH:mm")">@time.ToString("HH:mm")</option>
+                                    }
+                                }
+                            </select>
+                            <input type="hidden" asp-for="Week[i].DayOfWeek" />
+                        </td>
+                        <td>
+                            <select asp-for="Week[i].LunchStartTime" 
+                                    style="min-width: 100px;"
+                                    class="form-control">
+                                <option value="">-- Sem almoço --</option>
+                                @for (int h = 0; h < 24; h++)
+                                {
+                                    for (int m = 0; m < 60; m += 15)
+                                    {
+                                        var time = new TimeOnly(h, m);
+                                        <option value="@time.ToString("HH:mm")">@time.ToString("HH:mm")</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <select asp-for="Week[i].LunchEndTime" 
+                                    style="min-width: 100px;"
+                                    class="form-control">
+                                <option value="">-- Sem almoço --</option>
+                                @for (int h = 0; h < 24; h++)
+                                {
+                                    for (int m = 0; m < 60; m += 15)
+                                    {
+                                        var time = new TimeOnly(h, m);
+                                        <option value="@time.ToString("HH:mm")">@time.ToString("HH:mm")</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <select asp-for="Week[i].EndTime" 
+                                    style="min-width: 100px;"
+                                    class="form-control">
+                                @for (int h = 0; h < 24; h++)
+                                {
+                                    for (int m = 0; m < 60; m += 15)
+                                    {
+                                        var time = new TimeOnly(h, m);
+                                        <option value="@time.ToString("HH:mm")">@time.ToString("HH:mm")</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <select asp-for="Week[i].IsClosed" style="min-width: 100px;">
+                                <option value="false">Aberto</option>
+                                <option value="true">Fechado</option>
+                            </select>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin-top: 16px;">
+           
+            <button class="btn" type="submit">Salvar semana</button>
+        </div>
     </form>
 </section>
 
@@ -109,24 +176,21 @@
 </section>
 
 @section Scripts {
-    <!-- Flatpickr para calendário dd/MM/yyyy, igual ao usado em Appointments -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Inicializa todos os campos de data desta página
             flatpickr(".js-date", {
-                dateFormat: "d/m/Y",   // dd/MM/yyyy
+                dateFormat: "d/m/Y",
                 locale: flatpickr.l10ns.pt,
                 allowInput: false,
                 clickOpens: true,
                 disableMobile: true,
-                minDate: "today"       // substitui o min="yyyy-MM-dd" anterior
+                minDate: "today"
             });
 
-            // Conveniência: abre ao focar/clicar
             document.querySelectorAll(".js-date").forEach(function (el) {
                 el.addEventListener("focus", function () { if (el._flatpickr) el._flatpickr.open(); });
                 el.addEventListener("click", function () { if (el._flatpickr) el._flatpickr.open(); });
