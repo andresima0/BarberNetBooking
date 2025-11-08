@@ -62,3 +62,9 @@ app.UseStaticFiles();
 app.UseRouting();
 app.MapRazorPages();
 app.Run();
+
+// Classe parcial para acessar informações do ambiente
+public partial class Program 
+{
+    public static bool IsDevelopment { get; set; }
+}
