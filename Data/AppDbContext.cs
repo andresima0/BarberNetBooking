@@ -45,8 +45,7 @@ public class AppDbContext : DbContext
                 v => v.Ticks,
                 v => TimeOnly.FromTimeSpan(TimeSpan.FromTicks(v)))
             .HasColumnType("INTEGER");
-
-
+        
         // Evita dupla reserva: um barbeiro não pode ter duas marcações iguais
         modelBuilder.Entity<Appointment>()
             .HasIndex(a => new { a.BarberId, a.Date, a.StartTime })
@@ -64,6 +63,19 @@ public class AppDbContext : DbContext
             .HasConversion(
                 v => v.ToTimeSpan(),
                 v => TimeOnly.FromTimeSpan(v));
+
+        // Conversão dos novos campos de almoço
+        modelBuilder.Entity<BarberWorkingHour>()
+            .Property(w => w.LunchStartTime)
+            .HasConversion(
+                v => v.HasValue ? v.Value.ToTimeSpan() : (TimeSpan?)null,
+                v => v.HasValue ? TimeOnly.FromTimeSpan(v.Value) : (TimeOnly?)null);
+
+        modelBuilder.Entity<BarberWorkingHour>()
+            .Property(w => w.LunchEndTime)
+            .HasConversion(
+                v => v.HasValue ? v.Value.ToTimeSpan() : (TimeSpan?)null,
+                v => v.HasValue ? TimeOnly.FromTimeSpan(v.Value) : (TimeOnly?)null);
 
         // 1 regra por barbeiro/dia da semana
         modelBuilder.Entity<BarberWorkingHour>()

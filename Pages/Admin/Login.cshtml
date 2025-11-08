@@ -5,6 +5,14 @@
     ViewData["Title"] = "Login Admin";
 }
 
+@if (TempData["LoginMessage"] != null)
+{
+    <div class="alert alert-success" id="loginAlert">
+        @TempData["LoginMessage"]
+        <button type="button" class="close-alert" onclick="closeAlert('loginAlert')">&times;</button>
+    </div>
+}
+
 <section class="card">
     <h2>Acesso do administrador</h2>
     <form method="post">
@@ -20,3 +28,65 @@
         <div asp-validation-summary="All" class="errors"></div>
     </div>
 </section>
+
+@section Scripts {
+    <script>
+        // Auto-hide mensagem após 8 segundos
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginAlert = document.getElementById('loginAlert');
+            
+            if (loginAlert) {
+                setTimeout(() => {
+                    fadeOutAndRemove(loginAlert);
+                }, 8000);
+            }
+        });
+        
+        function fadeOutAndRemove(element) {
+            element.style.transition = 'opacity 0.5s ease';
+            element.style.opacity = '0';
+            setTimeout(() => {
+                element.remove();
+            }, 500);
+        }
+        
+        function closeAlert(alertId) {
+            const alert = document.getElementById(alertId);
+            if (alert) {
+                fadeOutAndRemove(alert);
+            }
+        }
+    </script>
+}
+
+<style>
+    .alert {
+        position: relative;
+        padding-right: 40px;
+    }
+    
+    .close-alert {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 24px;
+        line-height: 1;
+        color: inherit;
+        opacity: 0.6;
+        cursor: pointer;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.2s ease;
+    }
+    
+    .close-alert:hover {
+        opacity: 1;
+    }
+</style>

@@ -1,23 +1,225 @@
 ﻿@page
 @model BarberNetBooking.Pages.Admin.Settings.IndexModel
 @{
-    Layout = "/Pages/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Configurações";
+Layout = "/Pages/Shared/_AdminLayout.cshtml";
+ViewData["Title"] = "Configurações";
 }
 
+<div id="messagesContainer">
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+    <div class="alert alert-success" id="successAlert">
+        @Model.SuccessMessage
+        <button type="button" class="close-alert" onclick="closeAlert('successAlert')">&times;</button>
+    </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+    <div class="alert alert-danger" id="errorAlert">
+        @Model.ErrorMessage
+        <button type="button" class="close-alert" onclick="closeAlert('errorAlert')">&times;</button>
+    </div>
+    }
+</div>
+
 <section class="card">
-    <h2>Agenda</h2>
-    <form method="post">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Segurança</h2>
+        <button type="button" class="btn" id="editBtn" onclick="enableEdit()">
+            Editar PIN
+        </button>
+    </div>
+
+    <form method="post" id="pinForm">
         <div class="grid">
-            <label>Granularidade dos horários (min)
-                <select asp-for="Input.SlotMinutes" class="form-control">
-                    <option value="15">15 minutos</option>
-                    <option value="30">30 minutos</option>
-                    <option value="60">60 minutos</option>
-                </select>
-                <small class="form-text">Define o intervalo entre horários disponíveis para agendamento</small>
+            <label>
+                PIN Atual *
+                <input asp-for="Input.CurrentPin"
+                       type="password"
+                       class="form-control"
+                       autocomplete="current-password"
+                       disabled
+                       id="currentPin"
+                       placeholder="Digite o PIN atual" />
+                <span asp-validation-for="Input.CurrentPin" class="text-danger"></span>
+            </label>
+
+            <div></div>
+
+            <label>
+                Novo PIN *
+                <input asp-for="Input.NewPin"
+                       type="password"
+                       class="form-control"
+                       autocomplete="new-password"
+                       disabled
+                       id="newPin"
+                       placeholder="Digite o novo PIN (4-20 caracteres)" />
+                <span asp-validation-for="Input.NewPin" class="text-danger"></span>
+                <small class="form-text">O PIN deve ter entre 4 e 20 caracteres</small>
+            </label>
+
+            <label>
+                Confirmar Novo PIN *
+                <input asp-for="Input.ConfirmPin"
+                       type="password"
+                       class="form-control"
+                       autocomplete="new-password"
+                       disabled
+                       id="confirmPin"
+                       placeholder="Digite novamente o novo PIN" />
+                <span asp-validation-for="Input.ConfirmPin" class="text-danger"></span>
             </label>
         </div>
-        <button class="btn" type="submit">Salvar</button>
+
+        <div id="actionButtons" style="display: none; gap: 12px; margin-top: 16px;">
+            <button type="submit" class="btn" id="saveBtn">
+                Salvar Alterações
+            </button>
+            <button type="button" class="btn" id="cancelBtn" onclick="cancelEdit()" style="background: linear-gradient(90deg, #6b7280, #4b5563);">
+                Cancelar
+            </button>
+        </div>
     </form>
+
+    <div style="margin-top: 24px; padding: 16px; background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--danger); border-radius: 8px;">
+        <p style="margin: 0; color: var(--text); font-size: 14px;">
+            <strong>⚠️ Importante:</strong> Após alterar o PIN, você será desconectado e precisará fazer login novamente com o novo PIN.
+        </p>
+    </div>
 </section>
+
+<section class="card light">
+    <h3>Sobre o Sistema</h3>
+    <div class="grid">
+        <div>
+            <p><strong>Sistema:</strong> BarberNet</p>
+            <p><strong>Versão:</strong> 1.0.0</p>
+        </div>
+        <div>
+            <p><strong>Banco de Dados:</strong> SQLite</p>
+            <p><strong>Framework:</strong> ASP.NET Core 8.0</p>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+
+<script>
+    // Auto-hide mensagens após 5 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        const successAlert = document.getElementById('successAlert');
+        const errorAlert = document.getElementById('errorAlert');
+
+        if (successAlert) {
+            setTimeout(() => {
+                fadeOutAndRemove(successAlert);
+            }, 5000);
+        }
+
+        if (errorAlert) {
+            setTimeout(() => {
+                fadeOutAndRemove(errorAlert);
+            }, 8000);
+        }
+
+        // Se há erros de validação, habilita automaticamente o modo de edição
+        const hasErrors = document.querySelector('.text-danger:not(:empty)') !== null;
+        if (hasErrors) {
+            enableEdit();
+        }
+    });
+
+    function fadeOutAndRemove(element) {
+        element.style.transition = 'opacity 0.5s ease';
+        element.style.opacity = '0';
+        setTimeout(() => {
+            element.remove();
+        }, 500);
+    }
+
+    function closeAlert(alertId) {
+        const alert = document.getElementById(alertId);
+        if (alert) {
+            fadeOutAndRemove(alert);
+        }
+    }
+
+    function enableEdit() {
+        // Habilita os campos
+        document.getElementById('currentPin').disabled = false;
+        document.getElementById('newPin').disabled = false;
+        document.getElementById('confirmPin').disabled = false;
+
+        // Mostra botões de ação e esconde botão editar
+        document.getElementById('actionButtons').style.display = 'flex';
+        document.getElementById('editBtn').style.display = 'none';
+
+        // Foca no primeiro campo
+        document.getElementById('currentPin').focus();
+    }
+
+    function cancelEdit() {
+        // Desabilita os campos
+        document.getElementById('currentPin').disabled = true;
+        document.getElementById('newPin').disabled = true;
+        document.getElementById('confirmPin').disabled = true;
+
+        // Limpa os valores
+        document.getElementById('currentPin').value = '';
+        document.getElementById('newPin').value = '';
+        document.getElementById('confirmPin').value = '';
+
+        // Esconde botões de ação e mostra botão editar
+        document.getElementById('actionButtons').style.display = 'none';
+        document.getElementById('editBtn').style.display = 'inline-block';
+
+        // Remove mensagens de erro
+        document.querySelectorAll('.text-danger').forEach(el => el.textContent = '');
+    }
+</script>
+}
+
+<style>
+    #actionButtons {
+        display: flex;
+    }
+
+    input:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: rgba(17, 24, 38, 0.5);
+    }
+
+    .alert {
+        position: relative;
+        padding-right: 40px;
+    }
+
+    .close-alert {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 24px;
+        line-height: 1;
+        color: inherit;
+        opacity: 0.6;
+        cursor: pointer;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.2s ease;
+    }
+
+    .close-alert:hover {
+        opacity: 1;
+    }
+</style>
