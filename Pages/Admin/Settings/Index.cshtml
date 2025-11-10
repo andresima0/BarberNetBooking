@@ -1,37 +1,203 @@
 ﻿@page
 @model BarberNetBooking.Pages.Admin.Settings.IndexModel
 @{
-Layout = "/Pages/Shared/_AdminLayout.cshtml";
-ViewData["Title"] = "Configurações";
+    Layout = "/Pages/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Configurações";
 }
 
 <div id="messagesContainer">
     @if (!string.IsNullOrEmpty(Model.SuccessMessage))
     {
-    <div class="alert alert-success" id="successAlert">
-        @Model.SuccessMessage
-        <button type="button" class="close-alert" onclick="closeAlert('successAlert')">&times;</button>
-    </div>
+        <div class="alert alert-success" id="successAlert">
+            @Model.SuccessMessage
+            <button type="button" class="close-alert" onclick="closeAlert('successAlert')">&times;</button>
+        </div>
     }
 
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
-    <div class="alert alert-danger" id="errorAlert">
-        @Model.ErrorMessage
-        <button type="button" class="close-alert" onclick="closeAlert('errorAlert')">&times;</button>
-    </div>
+        <div class="alert alert-danger" id="errorAlert">
+            @Model.ErrorMessage
+            <button type="button" class="close-alert" onclick="closeAlert('errorAlert')">&times;</button>
+        </div>
     }
 </div>
 
+<!-- Informações da Barbearia -->
+<section class="card">
+    <h2>📝 Informações da Barbearia</h2>
+    <p style="color: var(--muted); margin-bottom: 20px;">
+        Estas informações aparecerão na página inicial do site para os clientes.
+    </p>
+
+    <form method="post" asp-page-handler="SaveShopInfo" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="text-danger" style="margin-bottom:12px;"></div>
+
+        <!-- IDENTIDADE / MARCA -->
+        <h3 style="margin-top: 8px; margin-bottom: 16px;">🏷️ Identidade</h3>
+        <div class="grid form-grid">
+            <label class="form-group">
+                Nome no header
+                <input asp-for="ShopInfo.SiteName"
+                       type="text"
+                       class="form-control"
+                       placeholder="Ex.: BarberNet / Barbearia do João" />
+                <span asp-validation-for="ShopInfo.SiteName" class="text-danger"></span>
+            </label>
+
+            <div class="form-group" style="display:flex; flex-direction:column;">
+                <label>Logo (PNG, JPG, WEBP ou SVG)</label>
+                <input asp-for="LogoFile" type="file" accept=".png,.jpg,.jpeg,.webp,.svg" />
+                <div style="margin-top:8px; display:flex; align-items:center; gap:12px;">
+                    @if (!string.IsNullOrWhiteSpace(Model.ShopInfo.LogoPath))
+                    {
+                        <img src="@Model.ShopInfo.LogoPath"
+                             alt="Logo atual" style="height:48px; border:1px solid var(--border);
+                             border-radius:6px; background:#fff; padding:6px;" />
+                        <label style="display:inline-flex; align-items:center; gap:6px;">
+                            <input asp-for="RemoveLogo" type="checkbox" />
+                            Remover logo
+                        </label>
+                    }
+                    else
+                    {
+                        <span style="color:var(--muted); font-size:14px;">Nenhum logo enviado ainda.</span>
+                    }
+                </div>
+                <small class="form-text">Dica: use imagens claras com fundo transparente.</small>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO -->
+        <h3 style="margin-top: 24px; margin-bottom: 16px;">🖊️ Conteúdo</h3>
+        <div class="grid">
+            <label style="grid-column: 1 / -1;">
+                Slogan
+                <input asp-for="ShopInfo.Slogan"
+                       class="form-control"
+                       placeholder="Ex: Seu estilo, nossa arte" />
+                <small class="form-text">Frase curta que representa sua barbearia</small>
+                <span asp-validation-for="ShopInfo.Slogan" class="text-danger"></span>
+            </label>
+
+            <label style="grid-column: 1 / -1;">
+                Sobre Nós
+                <textarea asp-for="ShopInfo.AboutUs"
+                          class="form-control"
+                          rows="5"
+                          placeholder="Conte a história da sua barbearia..."></textarea>
+                <small class="form-text">Máximo 2000 caracteres</small>
+                <span asp-validation-for="ShopInfo.AboutUs" class="text-danger"></span>
+            </label>
+        </div>
+
+        <!-- CONTATO -->
+        <h3 style="margin-top: 24px; margin-bottom: 16px;">📞 Contato</h3>
+        <div class="grid">
+            <label>
+                Telefone
+                <input asp-for="ShopInfo.Phone"
+                       type="tel"
+                       class="form-control"
+                       placeholder="(11) 99999-9999" />
+                <span asp-validation-for="ShopInfo.Phone" class="text-danger"></span>
+            </label>
+
+            <label>
+                E-mail
+                <input asp-for="ShopInfo.Email"
+                       type="email"
+                       class="form-control"
+                       placeholder="contato@barbernet.com.br" />
+                <span asp-validation-for="ShopInfo.Email" class="text-danger"></span>
+            </label>
+
+            <label>
+                Instagram
+                <input asp-for="ShopInfo.Instagram"
+                       class="form-control"
+                       placeholder="instagram.com/barbernet" />
+                <span asp-validation-for="ShopInfo.Instagram" class="text-danger"></span>
+            </label>
+
+            <label>
+                Facebook
+                <input asp-for="ShopInfo.Facebook"
+                       class="form-control"
+                       placeholder="facebook.com/barbernet" />
+                <span asp-validation-for="ShopInfo.Facebook" class="text-danger"></span>
+            </label>
+        </div>
+
+        <!-- ENDEREÇO -->
+        <h3 style="margin-top: 24px; margin-bottom: 16px;">📍 Endereço</h3>
+        <div class="grid">
+            <label style="grid-column: 1 / -1;">
+                Endereço completo
+                <input asp-for="ShopInfo.Address"
+                       class="form-control"
+                       placeholder="Rua Example, 123 - Bairro" />
+                <span asp-validation-for="ShopInfo.Address" class="text-danger"></span>
+            </label>
+
+            <label>
+                Cidade
+                <input asp-for="ShopInfo.City"
+                       class="form-control"
+                       placeholder="São Paulo" />
+                <span asp-validation-for="ShopInfo.City" class="text-danger"></span>
+            </label>
+
+            <label>
+                Estado (UF)
+                <input asp-for="ShopInfo.State"
+                       class="form-control"
+                       maxlength="2"
+                       placeholder="SP" />
+                <span asp-validation-for="ShopInfo.State" class="text-danger"></span>
+            </label>
+
+            <label>
+                CEP
+                <input asp-for="ShopInfo.ZipCode"
+                       class="form-control"
+                       placeholder="00000-000" />
+                <span asp-validation-for="ShopInfo.ZipCode" class="text-danger"></span>
+            </label>
+
+            <label style="grid-column: 1 / -1;">
+                URL do Google Maps (Embed)
+                <input asp-for="ShopInfo.MapEmbedUrl"
+                       class="form-control"
+                       placeholder="https://www.google.com/maps/embed?pb=..." />
+                <small class="form-text">
+                    <a href="https://www.google.com/maps" target="_blank" style="color: var(--accent);">
+                        Clique aqui
+                    </a>
+                    para obter o código de incorporação do Google Maps
+                </small>
+                <span asp-validation-for="ShopInfo.MapEmbedUrl" class="text-danger"></span>
+            </label>
+        </div>
+
+        <button type="submit" class="btn" style="margin-top: 16px;">
+            Salvar Informações
+        </button>
+    </form>
+</section>
+
+<!-- Segurança -->
 <section class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2>Segurança</h2>
+        <h2>🔐 Segurança</h2>
         <button type="button" class="btn" id="editBtn" onclick="enableEdit()">
             Editar PIN
         </button>
     </div>
 
-    <form method="post" id="pinForm">
+    <form method="post" asp-page-handler="ChangePin" id="pinForm">
+        @Html.AntiForgeryToken()
         <div class="grid">
             <label>
                 PIN Atual *
@@ -77,21 +243,25 @@ ViewData["Title"] = "Configurações";
             <button type="submit" class="btn" id="saveBtn">
                 Salvar Alterações
             </button>
-            <button type="button" class="btn" id="cancelBtn" onclick="cancelEdit()" style="background: linear-gradient(90deg, #6b7280, #4b5563);">
+            <button type="button" class="btn" id="cancelBtn" onclick="cancelEdit()" 
+                    style="background: linear-gradient(90deg, #6b7280, #4b5563);">
                 Cancelar
             </button>
         </div>
     </form>
 
-    <div style="margin-top: 24px; padding: 16px; background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--danger); border-radius: 8px;">
+    <div style="margin-top: 24px; padding: 16px; background: rgba(239, 68, 68, 0.1); 
+                border-left: 4px solid var(--danger); border-radius: 8px;">
         <p style="margin: 0; color: var(--text); font-size: 14px;">
-            <strong>⚠️ Importante:</strong> Após alterar o PIN, você será desconectado e precisará fazer login novamente com o novo PIN.
+            <strong>⚠️ Importante:</strong> Após alterar o PIN, você será desconectado 
+            e precisará fazer login novamente com o novo PIN.
         </p>
     </div>
 </section>
 
+<!-- Sobre o Sistema -->
 <section class="card light">
-    <h3>Sobre o Sistema</h3>
+    <h3>ℹ️ Sobre o Sistema</h3>
     <div class="grid">
         <div>
             <p><strong>Sistema:</strong> BarberNet</p>
@@ -105,99 +275,94 @@ ViewData["Title"] = "Configurações";
 </section>
 
 @section Scripts {
-<partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial" />
 
-<script>
-    // Auto-hide mensagens após 5 segundos
-    document.addEventListener('DOMContentLoaded', function() {
-        const successAlert = document.getElementById('successAlert');
-        const errorAlert = document.getElementById('errorAlert');
+    <script>
+        // Auto-hide mensagens
+        document.addEventListener('DOMContentLoaded', function () {
+            const successAlert = document.getElementById('successAlert');
+            const errorAlert = document.getElementById('errorAlert');
 
-        if (successAlert) {
-            setTimeout(() => {
-                fadeOutAndRemove(successAlert);
-            }, 5000);
+            if (successAlert) {
+                setTimeout(() => fadeOutAndRemove(successAlert), 5000);
+            }
+
+            if (errorAlert) {
+                setTimeout(() => fadeOutAndRemove(errorAlert), 8000);
+            }
+
+            // Se há erros de validação no form de PIN, habilita automaticamente o modo de edição
+            const hasErrors = document.querySelector('#pinForm .text-danger:not(:empty)') !== null;
+            if (hasErrors) {
+                enableEdit();
+            }
+        });
+
+        function fadeOutAndRemove(element) {
+            element.style.transition = 'opacity 0.5s ease';
+            element.style.opacity = '0';
+            setTimeout(() => element.remove(), 500);
         }
 
-        if (errorAlert) {
-            setTimeout(() => {
-                fadeOutAndRemove(errorAlert);
-            }, 8000);
+        function closeAlert(alertId) {
+            const alert = document.getElementById(alertId);
+            if (alert) fadeOutAndRemove(alert);
         }
 
-        // Se há erros de validação, habilita automaticamente o modo de edição
-        const hasErrors = document.querySelector('.text-danger:not(:empty)') !== null;
-        if (hasErrors) {
-            enableEdit();
+        function enableEdit() {
+            // Habilita os campos
+            document.getElementById('currentPin').disabled = false;
+            document.getElementById('newPin').disabled = false;
+            document.getElementById('confirmPin').disabled = false;
+
+            // Mostra botões de ação e esconde botão editar
+            document.getElementById('actionButtons').style.display = 'flex';
+            document.getElementById('editBtn').style.display = 'none';
+
+            // Foca no primeiro campo
+            document.getElementById('currentPin').focus();
         }
-    });
 
-    function fadeOutAndRemove(element) {
-        element.style.transition = 'opacity 0.5s ease';
-        element.style.opacity = '0';
-        setTimeout(() => {
-            element.remove();
-        }, 500);
-    }
+        function cancelEdit() {
+            // Desabilita os campos
+            document.getElementById('currentPin').disabled = true;
+            document.getElementById('newPin').disabled = true;
+            document.getElementById('confirmPin').disabled = true;
 
-    function closeAlert(alertId) {
-        const alert = document.getElementById(alertId);
-        if (alert) {
-            fadeOutAndRemove(alert);
+            // Limpa os valores
+            document.getElementById('currentPin').value = '';
+            document.getElementById('newPin').value = '';
+            document.getElementById('confirmPin').value = '';
+
+            // Esconde botões de ação e mostra botão editar
+            document.getElementById('actionButtons').style.display = 'none';
+            document.getElementById('editBtn').style.display = 'inline-block';
+
+            // Remove mensagens de erro
+            document.querySelectorAll('.text-danger').forEach(el => el.textContent = '');
         }
-    }
-
-    function enableEdit() {
-        // Habilita os campos
-        document.getElementById('currentPin').disabled = false;
-        document.getElementById('newPin').disabled = false;
-        document.getElementById('confirmPin').disabled = false;
-
-        // Mostra botões de ação e esconde botão editar
-        document.getElementById('actionButtons').style.display = 'flex';
-        document.getElementById('editBtn').style.display = 'none';
-
-        // Foca no primeiro campo
-        document.getElementById('currentPin').focus();
-    }
-
-    function cancelEdit() {
-        // Desabilita os campos
-        document.getElementById('currentPin').disabled = true;
-        document.getElementById('newPin').disabled = true;
-        document.getElementById('confirmPin').disabled = true;
-
-        // Limpa os valores
-        document.getElementById('currentPin').value = '';
-        document.getElementById('newPin').value = '';
-        document.getElementById('confirmPin').value = '';
-
-        // Esconde botões de ação e mostra botão editar
-        document.getElementById('actionButtons').style.display = 'none';
-        document.getElementById('editBtn').style.display = 'inline-block';
-
-        // Remove mensagens de erro
-        document.querySelectorAll('.text-danger').forEach(el => el.textContent = '');
-    }
-</script>
+    </script>
 }
 
 <style>
-    #actionButtons {
-        display: flex;
-    }
-
+    #actionButtons { display: flex; }
+    
     input:disabled {
         opacity: 0.6;
         cursor: not-allowed;
         background: rgba(17, 24, 38, 0.5);
     }
-
+    
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
     .alert {
         position: relative;
         padding-right: 40px;
     }
-
+    
     .close-alert {
         position: absolute;
         top: 50%;
@@ -218,8 +383,6 @@ ViewData["Title"] = "Configurações";
         justify-content: center;
         transition: opacity 0.2s ease;
     }
-
-    .close-alert:hover {
-        opacity: 1;
-    }
+    
+    .close-alert:hover { opacity: 1; }
 </style>

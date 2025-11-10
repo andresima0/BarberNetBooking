@@ -1,9 +1,25 @@
-﻿<!DOCTYPE html>
+﻿@using BarberNetBooking.Data
+@inject AppDbContext Db
+@using Microsoft.EntityFrameworkCore
+
+@{
+    // Lê branding do banco
+    var branding = Db.ShopInfos.AsNoTracking().FirstOrDefault();
+    var siteName = string.IsNullOrWhiteSpace(branding?.SiteName) ? "BarberNet" : branding!.SiteName!;
+    // Se houver logo salvo, usa; senão, usa o ~/logo_white.png padrão
+    var logoPath = !string.IsNullOrWhiteSpace(branding?.LogoPath)
+        ? branding!.LogoPath
+        : Url.Content("~/uploads/branding/logo.png");
+    // cache-busting para mudanças de logo
+    var logoUrl = $"{logoPath}?v={(branding?.UpdatedAt.Ticks.ToString() ?? "0")}";
+}
+
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewData["Title"] - BarberNet</title>
+    <title>@ViewData["Title"] - @siteName</title>
     
     <!-- Estilos globais -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -12,6 +28,13 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     
     @RenderSection("Styles", required: false)
+
+    <style>
+        /* Garantir que o logo apareça corretamente */
+        .brand-link { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .logo { height: 32px; width: auto; display: inline-block; }
+        .brand-name { font-weight: 700; }
+    </style>
 </head>
 <body>
 @{
@@ -25,8 +48,8 @@
     <div class="container topbar-inner">
         <div class="brand">
             <a asp-page="/Index" class="brand-link">
-                <img src="~/img/logo.png" alt="BarberNet" class="logo" />
-                <span class="brand-name">BarberNet</span>
+                <img src="@logoUrl" alt="@siteName" class="logo" />
+                <span class="brand-name">@siteName</span>
             </a>
         </div>
 
