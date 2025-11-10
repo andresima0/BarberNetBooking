@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<BarberWorkingHour> WorkingHours => Set<BarberWorkingHour>();
     public DbSet<BarberTimeOff> TimeOffs => Set<BarberTimeOff>();
     public DbSet<ShopSetting> Settings => Set<ShopSetting>();
+    public DbSet<ShopInfo> ShopInfos => Set<ShopInfo>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -64,7 +65,7 @@ public class AppDbContext : DbContext
                 v => v.ToTimeSpan(),
                 v => TimeOnly.FromTimeSpan(v));
 
-        // Conversão dos novos campos de almoço
+        // Conversão dos campos de almoço
         modelBuilder.Entity<BarberWorkingHour>()
             .Property(w => w.LunchStartTime)
             .HasConversion(
