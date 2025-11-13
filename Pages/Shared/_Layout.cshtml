@@ -6,35 +6,31 @@
     // Lê branding do banco
     var branding = Db.ShopInfos.AsNoTracking().FirstOrDefault();
     var siteName = string.IsNullOrWhiteSpace(branding?.SiteName) ? "BarberNet" : branding!.SiteName!;
-    // Se houver logo salvo, usa; senão, usa o ~/logo_white.png padrão
+
+
     var logoPath = !string.IsNullOrWhiteSpace(branding?.LogoPath)
         ? branding!.LogoPath
         : Url.Content("~/uploads/branding/logo.png");
-    // cache-busting para mudanças de logo
+
+    
+    // Cache-busting para mudanças do logo
     var logoUrl = $"{logoPath}?v={(branding?.UpdatedAt.Ticks.ToString() ?? "0")}";
 }
 
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>@ViewData["Title"] - @siteName</title>
-    
+
     <!-- Estilos globais -->
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+
     <!-- CSS do Flatpickr -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    
-    @RenderSection("Styles", required: false)
 
-    <style>
-        /* Garantir que o logo apareça corretamente */
-        .brand-link { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
-        .logo { height: 32px; width: auto; display: inline-block; }
-        .brand-name { font-weight: 700; }
-    </style>
+    @RenderSection("Styles", required: false)
 </head>
 <body>
 @{
@@ -48,7 +44,7 @@
     <div class="container topbar-inner">
         <div class="brand">
             <a asp-page="/Index" class="brand-link">
-                <img src="@logoUrl" alt="@siteName" class="logo" />
+                <img src="@logoUrl" alt="@siteName" class="logo"/>
                 <span class="brand-name">@siteName</span>
             </a>
         </div>
@@ -72,6 +68,11 @@
                     Entrar (Admin)
                 </a>
             }
+            
+            <button type="button" class="theme-toggle" id="themeToggle" aria-label="Alternar tema">
+                <span class="icon" id="themeIcon">🌙</span>
+            </button>
+
         </nav>
     </div>
 </header>
@@ -82,7 +83,7 @@
 
 <footer class="site-footer">
     <div class="container foot-inner">
-        <p>&copy; @DateTime.Now.Year BarberNet — Todos os direitos reservados</p>
+        <p>&copy; @DateTime.Now.Year @siteName — Todos os direitos reservados</p>
     </div>
 </footer>
 
@@ -92,6 +93,39 @@
 <!-- JS do Flatpickr -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
+<script>
+  (function() {
+    const key = 'bn-theme';
+    const root = document.documentElement;
+    const btn  = document.getElementById('themeToggle');
+    const icon = document.getElementById('themeIcon');
+
+    // aplica tema salvo
+    const saved = localStorage.getItem(key);
+    if (saved === 'light') root.setAttribute('data-theme','light');
+    updateIcon();
+
+    btn?.addEventListener('click', () => {
+      const isLight = root.getAttribute('data-theme') === 'light';
+      if (isLight) {
+        root.removeAttribute('data-theme');
+        localStorage.setItem(key, 'dark');
+      } else {
+        root.setAttribute('data-theme','light');
+        localStorage.setItem(key, 'light');
+      }
+      updateIcon();
+    });
+
+    function updateIcon(){
+      const isLight = root.getAttribute('data-theme') === 'light';
+      icon.textContent = isLight ? '☀️' : '🌙';
+      btn.setAttribute('aria-label', isLight ? 'Tema claro' : 'Tema escuro');
+      btn.setAttribute('title', isLight ? 'Tema claro' : 'Tema escuro');
+    }
+  })();
+</script>
 
 @RenderSection("Scripts", required: false)
 </body>
