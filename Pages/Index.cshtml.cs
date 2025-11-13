@@ -206,12 +206,37 @@ public class IndexModel : PageModel
             .Select(s => s.SlotMinutes).FirstOrDefaultAsync();
         if (slot <= 0) slot = 15;
 
+        var now = DateTime.Now;
+        var today = DateOnly.FromDateTime(now);
+        var currentTime = TimeOnly.FromDateTime(now);
+
         var list = new List<TimeOnly>();
         for (var t = start; t.AddMinutes(durationMinutes) <= end; t = t.AddMinutes(slot))
         {
             var tEnd = t.AddMinutes(durationMinutes);
-            var overlap = taken.Any(a => !(tEnd <= a.StartTime || t >= a.EndTime));
-            if (!overlap) list.Add(t);
+
+            // 1. Verifica se não é hoje OU se é hoje mas o horário ainda não passou
+            if (date < today || (date == today && t <= currentTime))
+                continue;
+
+            // 2. Verifica sobreposição com agendamentos existentes
+            var overlapAppointment = taken.Any(a => !(tEnd <= a.StartTime || t >= a.EndTime));
+            if (overlapAppointment)
+                continue;
+
+            // 3. NOVO: Verifica sobreposição com horário de almoço
+            if (wh.LunchStartTime.HasValue && wh.LunchEndTime.HasValue)
+            {
+                var lunchStart = wh.LunchStartTime.Value;
+                var lunchEnd = wh.LunchEndTime.Value;
+
+                // Verifica se o serviço invade o horário de almoço
+                var overlapLunch = !(tEnd <= lunchStart || t >= lunchEnd);
+                if (overlapLunch)
+                    continue;
+            }
+
+            list.Add(t);
         }
 
         return list;
@@ -219,6 +244,19 @@ public class IndexModel : PageModel
 
     private async Task<bool> IsSlotAvailableAsync(int barberId, DateOnly date, TimeOnly start, int durationMinutes)
     {
+        // Verifica se não é uma data passada
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        if (date < today)
+            return false;
+
+        // Se for hoje, verifica se o horário já passou
+        if (date == today)
+        {
+            var now = TimeOnly.FromDateTime(DateTime.Now);
+            if (start <= now)
+                return false;
+        }
+
         var slots = await BuildAvailableSlotsAsync(barberId, date, durationMinutes);
         return slots.Contains(start);
     }

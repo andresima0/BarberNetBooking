@@ -70,13 +70,13 @@ main.container {
     text-decoration: none;
 }
 
-.logo{
-    height: 84px !important; 
+.logo {
+    height: 84px !important;
     width: auto !important;
-    display: inline-block; 
+    display: inline-block;
     border-radius: 0 !important;
-    background: transparent !important; 
-    padding: 0 !important; 
+    background: transparent !important;
+    padding: 0 !important;
     box-shadow: none !important;
 }
 
@@ -599,9 +599,9 @@ details form .btn {
 }
 
 /* ===== THEME: LIGHT (override de variáveis) ===== */
-:root[data-theme="light"]{
+:root[data-theme="light"] {
     /* base neutra */
-    --bg:   #f5f5f3;
+    --bg: #f5f5f3;
     --bg-2: #faf9f7;
     --card: #faf9f7;
     --border: #e5e7eb;
@@ -615,31 +615,34 @@ details form .btn {
 }
 
 /* Header e containers no light */
-:root[data-theme="light"] .topbar{
-    background: rgba(255,255,255,.9);
+:root[data-theme="light"] .topbar {
+    background: rgba(255, 255, 255, .9);
     backdrop-filter: saturate(120%) blur(8px);
     border-bottom: 1px solid var(--border);
 }
-:root[data-theme="light"] .card{
+
+:root[data-theme="light"] .card {
     background: var(--card);
     border: 1px solid var(--border);
-    box-shadow: 0 10px 20px rgba(2,8,23,.06);
+    box-shadow: 0 10px 20px rgba(2, 8, 23, .06);
 }
-:root[data-theme="light"] body{
+
+:root[data-theme="light"] body {
     background: linear-gradient(135deg, var(--bg), var(--bg-2));
     color: var(--text);
 }
 
 /* Tabs / botões no light */
 :root[data-theme="light"] .tabs a,
-:root[data-theme="light"] .admin-tabs a{
+:root[data-theme="light"] .admin-tabs a {
     background: linear-gradient(180deg, #ffffff, #f5f6f9);
     color: var(--text);
     border: 1px solid var(--border);
-    box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 6px 16px rgba(2,8,23,.06);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .04), 0 6px 16px rgba(2, 8, 23, .06);
 }
+
 :root[data-theme="light"] .tabs a.active,
-:root[data-theme="light"] .admin-tabs a.active{
+:root[data-theme="light"] .admin-tabs a.active {
     background: linear-gradient(90deg, var(--accent), #7f1d1d);
     color: #fff;
     border-color: transparent;
@@ -647,51 +650,53 @@ details form .btn {
 }
 
 /* ===== Botões vermelhos no LIGHT MODE ===== */
-:root[data-theme="light"] .btn{
+:root[data-theme="light"] .btn {
     background: linear-gradient(90deg, var(--accent), #7f1d1d) !important; /* #b91c1c -> #7f1d1d */
     border: none;
     color: #fff;
     box-shadow: 0 6px 18px rgba(185, 28, 28, .25);
 }
 
-:root[data-theme="light"] .btn:hover{
+:root[data-theme="light"] .btn:hover {
     filter: brightness(1.05);
 }
 
-:root[data-theme="light"] .btn:active{
+:root[data-theme="light"] .btn:active {
     transform: translateY(1px);
     box-shadow: 0 3px 10px rgba(185, 28, 28, .25);
 }
 
 /* Opcional: versão 'danger' ainda mais escura */
-:root[data-theme="light"] .btn-danger{
+:root[data-theme="light"] .btn-danger {
     background: linear-gradient(90deg, #991b1b, #7f1d1d) !important;
 }
 
 /* Inputs no light */
 :root[data-theme="light"] input,
 :root[data-theme="light"] select,
-:root[data-theme="light"] textarea{
+:root[data-theme="light"] textarea {
     background: #fff;
     color: var(--text);
     border: 1px solid var(--border);
 }
+
 :root[data-theme="light"] input::placeholder,
-:root[data-theme="light"] textarea::placeholder{
+:root[data-theme="light"] textarea::placeholder {
     color: #94a3b8;
 }
 
 /* Tabelas no light */
 :root[data-theme="light"] .tbl th,
-:root[data-theme="light"] .tbl td{
+:root[data-theme="light"] .tbl td {
     border-bottom: 1px solid var(--border);
 }
-:root[data-theme="light"] .tbl tr:hover{
+
+:root[data-theme="light"] .tbl tr:hover {
     background: rgba(2, 8, 23, .03);
 }
 
 /* Footer no light */
-:root[data-theme="light"] .site-footer{
+:root[data-theme="light"] .site-footer {
     background: #faf9f7;
     color: #475569;
 }
@@ -705,3 +710,103 @@ details form .btn {
 }
 .theme-toggle:hover{ filter: brightness(1.05); }
 .theme-toggle .icon{ font-size: 18px; line-height: 1; }
+
+/* ================= CORES DE BOTÕES PERSONALIZADAS ================= */
+/* Estas cores funcionam em AMBOS os temas (claro e escuro) */
+
+/* Botão Verde (Salvar, Confirmar) */
+.btn-success {
+    background: linear-gradient(90deg, #16a34a, #15803d) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.btn-success:hover {
+    background: linear-gradient(90deg, #15803d, #14532d) !important;
+}
+
+.btn-success:active {
+    transform: translateY(1px);
+}
+
+/* Botão Vermelho (Remover, Cancelar) */
+.btn-danger {
+    background: linear-gradient(90deg, #dc2626, #b91c1c) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(90deg, #b91c1c, #991b1b) !important;
+}
+
+.btn-danger:active {
+    transform: translateY(1px);
+}
+
+/* Botão Laranja (Remarcar) */
+.btn-warning {
+    background: linear-gradient(90deg, #f97316, #ea580c) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(90deg, #ea580c, #c2410c) !important;
+}
+
+.btn-warning:active {
+    transform: translateY(1px);
+}
+
+/* Botão Cinza (Cancelar ação) */
+.btn-secondary {
+    background: linear-gradient(90deg, #6b7280, #4b5563) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(90deg, #4b5563, #374151) !important;
+}
+
+.btn-secondary:active {
+    transform: translateY(1px);
+}
+
+/* Garantir que os botões não sejam sobrescritos pelo tema light */
+:root[data-theme="light"] .btn-success {
+    background: linear-gradient(90deg, #16a34a, #15803d) !important;
+    color: #fff !important;
+}
+
+:root[data-theme="light"] .btn-success:hover {
+    background: linear-gradient(90deg, #15803d, #14532d) !important;
+}
+
+:root[data-theme="light"] .btn-danger {
+    background: linear-gradient(90deg, #dc2626, #b91c1c) !important;
+    color: #fff !important;
+}
+
+:root[data-theme="light"] .btn-danger:hover {
+    background: linear-gradient(90deg, #b91c1c, #991b1b) !important;
+}
+
+:root[data-theme="light"] .btn-warning {
+    background: linear-gradient(90deg, #f97316, #ea580c) !important;
+    color: #fff !important;
+}
+
+:root[data-theme="light"] .btn-warning:hover {
+    background: linear-gradient(90deg, #ea580c, #c2410c) !important;
+}
+
+:root[data-theme="light"] .btn-secondary {
+    background: linear-gradient(90deg, #6b7280, #4b5563) !important;
+    color: #fff !important;
+}
+
+:root[data-theme="light"] .btn-secondary:hover {
+    background: linear-gradient(90deg, #4b5563, #374151) !important;
+}

@@ -41,13 +41,13 @@ ViewData["Title"] = "Barbeiros";
                 <form method="post" asp-page-handler="SaveChanges" style="display:inline;">
                     <input type="hidden" name="barberId" value="@barber.Id" />
                     <input type="hidden" name="Barber[@barber.Id].Name" value="" id="hiddenName_@barber.Id" />
-                    <button type="submit" class="btn" onclick="copyBarberValues(@barber.Id)">Salvar</button>
+                    <button type="submit" class="btn btn-success" onclick="copyBarberValues(@barber.Id)">Salvar</button>
                 </form>
 
                 <!-- Formulário para excluir o barbeiro -->
                 <form method="post" asp-page-handler="Delete" style="display:inline; margin-left:8px;">
                     <input type="hidden" name="id" value="@barber.Id" />
-                    <button type="submit" class="btn"
+                    <button type="submit" class="btn btn-danger"
                             onclick="return confirm('Tem certeza que deseja remover este barbeiro? Esta ação não pode ser desfeita.');">
                         Remover
                     </button>
@@ -67,7 +67,7 @@ ViewData["Title"] = "Barbeiros";
                 <input asp-for="Input.Name" placeholder="Nome do Barbeiro" />
             </label>
         </div>
-        <button class="btn" type="submit">Adicionar Barbeiro</button>
+        <button class="btn btn-success" type="submit">Adicionar Barbeiro</button>
     </form>
 </section>
 

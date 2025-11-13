@@ -71,7 +71,7 @@ ViewData["Title"] = "Agendamentos";
                 Apagar selecionados
             </button>
 
-            <button type="button" class="btn" id="cancelDeleteMode" style="display: none;" onclick="cancelDeleteMode()">
+            <button type="button" class="btn btn-secondary" id="cancelDeleteMode" style="display: none;" onclick="cancelDeleteMode()">
                 Cancelar
             </button>
         </div>
@@ -139,7 +139,7 @@ ViewData["Title"] = "Agendamentos";
                 </form>
 
                 <details style="display:inline-block; margin-left:8px;">
-                    <summary>Remarcar</summary>
+                    <summary style="background: linear-gradient(90deg, #f97316, #ea580c);">Remarcar</summary>
                     <form method="post" asp-page-handler="Reschedule" class="mt-2">
                         <input type="hidden" name="id" value="@a.Id" />
                         <div class="mb-2">
@@ -158,7 +158,7 @@ ViewData["Title"] = "Agendamentos";
                                    placeholder="HH:mm"
                                    value="@a.StartTime.ToDisplayTime()" />
                         </div>
-                        <button class="btn btn-primary" type="submit">Salvar</button>
+                        <button class="btn btn-success" type="submit">Salvar</button>
                     </form>
                 </details>
                 }

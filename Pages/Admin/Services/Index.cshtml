@@ -60,13 +60,13 @@ ViewData["Title"] = "Serviços";
                     <input type="hidden" name="Service[@service.Id].Name" value="" id="hiddenName_@service.Id" />
                     <input type="hidden" name="Service[@service.Id].Price" value="" id="hiddenPrice_@service.Id" />
                     <input type="hidden" name="Service[@service.Id].DurationMinutes" value="" id="hiddenDuration_@service.Id" />
-                    <button type="submit" class="btn" onclick="copyValues(@service.Id)">Salvar</button>
+                    <button type="submit" class="btn btn-success" onclick="copyValues(@service.Id)">Salvar</button>
                 </form>
 
                 <!-- Formulário para excluir o serviço -->
                 <form method="post" asp-page-handler="Delete" style="display:inline; margin-left:8px;">
                     <input type="hidden" name="id" value="@service.Id" />
-                    <button type="submit" class="btn">Remover</button>
+                    <button type="submit" class="btn btn-danger">Remover</button>
                 </form>
             </td>
         </tr>
@@ -101,7 +101,7 @@ ViewData["Title"] = "Serviços";
             </label>
         </div>
 
-        <button type="submit" class="btn">Salvar Serviço</button>
+        <button type="submit" class="btn btn-success">Salvar Serviço</button>
     </form>
 </section>
 
