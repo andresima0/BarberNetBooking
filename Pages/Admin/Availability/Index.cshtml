@@ -116,7 +116,7 @@
         
         <div style="margin-top: 16px;">
            
-            <button class="btn" type="submit">Salvar semana</button>
+            <button class="btn btn-success" type="submit">Salvar semana</button>
         </div>
     </form>
 </section>
@@ -141,7 +141,7 @@
                        placeholder="Ex: Férias, Folga pessoal..." />
             </label>
         </div>
-        <button class="btn" type="submit">Adicionar folga</button>
+        <button class="btn btn-success" type="submit">Adicionar folga</button>
     </form>
 
     @if (Model.TimeOffs.Any())
@@ -158,7 +158,7 @@
                         <form method="post" asp-page-handler="DeleteTimeOff">
                             <input type="hidden" name="id" value="@t.Id" />
                             <input type="hidden" asp-for="SelectedBarberId" />
-                            <button class="btn" type="submit" 
+                            <button class="btn btn-danger" type="submit"
                                     onclick="return confirm('Deseja remover esta folga?');">
                                 Remover
                             </button>
