@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using BarberNetBooking.Data;
 using BarberNetBooking.Models;
+using BarberNetBooking.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,8 +12,13 @@ namespace BarberNetBooking.Pages;
 public class IndexModel : PageModel
 {
     private readonly AppDbContext _db;
+    private readonly IEmailService _emailService;
 
-    public IndexModel(AppDbContext db) => _db = db;
+    public IndexModel(AppDbContext db, IEmailService emailService)
+    {
+        _db = db;
+        _emailService = emailService;
+    }
 
     // Dados para a view
     public List<Service> Services { get; set; } = new();
@@ -34,15 +40,13 @@ public class IndexModel : PageModel
         [Required] public int BarberId { get; set; }
 
         [Required, DataType(DataType.Date)]
-        public DateOnly Date { get; set; }
+        public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
 
         [Required] public TimeOnly StartTime { get; set; }
 
-        [Required, EmailAddress]
-        public string CustomerEmail { get; set; } = string.Empty;
+        [Required, EmailAddress] public string CustomerEmail { get; set; } = string.Empty;
 
-        [Required]
-        public string CustomerPhone { get; set; } = string.Empty;
+        [Required] public string CustomerPhone { get; set; } = string.Empty;
     }
 
     public async Task OnGetAsync()
@@ -68,7 +72,7 @@ public class IndexModel : PageModel
             .ToListAsync();
 
         ServiceOptions = new SelectList(Services, nameof(Service.Id), nameof(Service.Name));
-        BarberOptions  = new SelectList(barbers, nameof(Barber.Id), nameof(Barber.Name));
+        BarberOptions = new SelectList(barbers, nameof(Barber.Id), nameof(Barber.Name));
 
         // >>> Agrega horários por MAIOR disponibilidade entre todos os barbeiros ativos
         WorkingHours = barbers.Any()
@@ -89,7 +93,7 @@ public class IndexModel : PageModel
 
         var service = await _db.Services.AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == Input.ServiceId && s.IsActive);
-        var barber  = await _db.Barbers.AsNoTracking()
+        var barber = await _db.Barbers.AsNoTracking()
             .FirstOrDefaultAsync(b => b.Id == Input.BarberId && b.IsActive);
 
         if (service == null || barber == null)
@@ -109,19 +113,31 @@ public class IndexModel : PageModel
         var appt = new Appointment
         {
             ServiceId = service.Id,
-            BarberId  = barber.Id,
-            Date      = Input.Date,
+            BarberId = barber.Id,
+            Date = Input.Date,
             StartTime = Input.StartTime,
-            EndTime   = Input.StartTime.AddMinutes(service.DurationMinutes),
-            Time      = new TimeSpan(Input.StartTime.Hour, Input.StartTime.Minute, 0),
+            EndTime = Input.StartTime.AddMinutes(service.DurationMinutes),
+            Time = new TimeSpan(Input.StartTime.Hour, Input.StartTime.Minute, 0),
             CustomerEmail = Input.CustomerEmail.Trim(),
             CustomerPhone = Input.CustomerPhone.Trim(),
-            Status    = AppointmentStatus.Confirmed,
+            Status = AppointmentStatus.Confirmed,
             CreatedAtUtc = DateTime.UtcNow
         };
 
         _db.Appointments.Add(appt);
         await _db.SaveChangesAsync();
+
+        // ===== ENVIO DO E-MAIL DE CONFIRMAÇÃO =====
+        try
+        {
+            await _emailService.SendAppointmentConfirmationAsync(appt, service, barber);
+        }
+        catch (Exception ex)
+        {
+            // Log do erro, mas não quebra o fluxo
+            Console.WriteLine($"Erro ao enviar e-mail de confirmação: {ex.Message}");
+        }
+        // ==========================================
 
         SuccessMessage = "Agendamento confirmado!";
         ModelState.Clear();
@@ -143,7 +159,7 @@ public class IndexModel : PageModel
 
         var service = await _db.Services.AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == serviceId && s.IsActive);
-        var barber  = await _db.Barbers.AsNoTracking()
+        var barber = await _db.Barbers.AsNoTracking()
             .FirstOrDefaultAsync(b => b.Id == barberId && b.IsActive);
 
         if (service == null || barber == null)
@@ -156,7 +172,7 @@ public class IndexModel : PageModel
             slots = slots.Select(t => new
             {
                 value = t.ToString("HH\\:mm"),
-                text  = t.ToString("HH:mm")
+                text = t.ToString("HH:mm")
             })
         });
     }
@@ -178,7 +194,7 @@ public class IndexModel : PageModel
         if (wh == null || wh.IsClosed) return new List<TimeOnly>();
 
         var start = wh.StartTime;
-        var end   = wh.EndTime;
+        var end = wh.EndTime;
 
         // Agendamentos já confirmados
         var taken = await _db.Appointments.AsNoTracking()
@@ -197,6 +213,7 @@ public class IndexModel : PageModel
             var overlap = taken.Any(a => !(tEnd <= a.StartTime || t >= a.EndTime));
             if (!overlap) list.Add(t);
         }
+
         return list;
     }
 
@@ -208,91 +225,88 @@ public class IndexModel : PageModel
 
     // ========= Agregação: MAIOR disponibilidade por dia =========
     private async Task<List<BarberWorkingHour>> AggregateMaxAvailabilityAsync(List<int> barberIds)
-{
-    var rules = await _db.WorkingHours.AsNoTracking()
-        .Where(w => barberIds.Contains(w.BarberId))
-        .ToListAsync();
-
-    var orderedDays = new[]
     {
-        DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
-        DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday
-    };
+        var rules = await _db.WorkingHours.AsNoTracking()
+            .Where(w => barberIds.Contains(w.BarberId))
+            .ToListAsync();
 
-    var result = new List<BarberWorkingHour>(7);
-
-    foreach (var day in orderedDays)
-    {
-        var dayRules = rules.Where(r => r.DayOfWeek == day).ToList();
-
-        if (dayRules.Count == 0 || dayRules.All(r => r.IsClosed))
+        var orderedDays = new[]
         {
+            DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
+            DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday
+        };
+
+        var result = new List<BarberWorkingHour>(7);
+
+        foreach (var day in orderedDays)
+        {
+            var dayRules = rules.Where(r => r.DayOfWeek == day).ToList();
+
+            if (dayRules.Count == 0 || dayRules.All(r => r.IsClosed))
+            {
+                result.Add(new BarberWorkingHour
+                {
+                    DayOfWeek = day,
+                    IsClosed = true,
+                    StartTime = new TimeOnly(9, 0),
+                    EndTime = new TimeOnly(18, 0),
+                    LunchStartTime = null,
+                    LunchEndTime = null
+                });
+                continue;
+            }
+
+            // Considera só os barbeiros abertos nesse dia
+            var openRules = dayRules.Where(r => !r.IsClosed).ToList();
+
+            // Maior disponibilidade do dia: menor início e maior fim entre os abertos
+            var minStart = openRules.Min(r => r.StartTime);
+            var maxEnd = openRules.Max(r => r.EndTime);
+
+            // --- Almoço comum (interseção) ---
+            var withLunch = openRules
+                .Where(r => r.LunchStartTime.HasValue && r.LunchEndTime.HasValue)
+                .ToList();
+
+            TimeOnly? lunchStart = null;
+            TimeOnly? lunchEnd = null;
+
+            if (withLunch.Any())
+            {
+                var interStart = withLunch.Max(r => r.LunchStartTime!.Value);
+                var interEnd = withLunch.Min(r => r.LunchEndTime!.Value);
+
+                if (interStart < interEnd && interStart > minStart && interEnd < maxEnd)
+                {
+                    lunchStart = interStart;
+                    lunchEnd = interEnd;
+                }
+            }
+
             result.Add(new BarberWorkingHour
             {
                 DayOfWeek = day,
-                IsClosed = true,
-                StartTime = new TimeOnly(9, 0),
-                EndTime = new TimeOnly(18, 0),
-                LunchStartTime = null,
-                LunchEndTime = null
+                IsClosed = false,
+                StartTime = minStart,
+                EndTime = maxEnd,
+                LunchStartTime = lunchStart,
+                LunchEndTime = lunchEnd
             });
-            continue;
         }
 
-        // Considera só os barbeiros abertos nesse dia
-        var openRules = dayRules.Where(r => !r.IsClosed).ToList();
-
-        // Maior disponibilidade do dia: menor início e maior fim entre os abertos
-        var minStart = openRules.Min(r => r.StartTime);
-        var maxEnd   = openRules.Max(r => r.EndTime);
-
-        // --- Almoço comum (interseção) ---
-        // Pegamos apenas quem tem almoço definido; se não houver interseção, não mostramos almoço
-        var withLunch = openRules
-            .Where(r => r.LunchStartTime.HasValue && r.LunchEndTime.HasValue)
-            .ToList();
-
-        TimeOnly? lunchStart = null;
-        TimeOnly? lunchEnd   = null;
-
-        if (withLunch.Any())
-        {
-            // Interseção: começa no MAIOR início e termina no MENOR fim de almoço
-            var interStart = withLunch.Max(r => r.LunchStartTime!.Value);
-            var interEnd   = withLunch.Min(r => r.LunchEndTime!.Value);
-
-            // Só vale se houver janela positiva e dentro do horário total do dia
-            if (interStart < interEnd && interStart > minStart && interEnd < maxEnd)
-            {
-                lunchStart = interStart;
-                lunchEnd   = interEnd;
-            }
-        }
-
-        result.Add(new BarberWorkingHour
-        {
-            DayOfWeek = day,
-            IsClosed  = false,
-            StartTime = minStart,
-            EndTime   = maxEnd,
-            LunchStartTime = lunchStart,
-            LunchEndTime   = lunchEnd
-        });
+        return result;
     }
-
-    return result;
-}
 
     // ========= Utilitário para a view =========
     public string GetDayName(DayOfWeek day) => day switch
     {
-        DayOfWeek.Monday    => "Segunda-feira",
-        DayOfWeek.Tuesday   => "Terça-feira",
+        DayOfWeek.Monday => "Segunda-feira",
+        DayOfWeek.Tuesday => "Terça-feira",
         DayOfWeek.Wednesday => "Quarta-feira",
-        DayOfWeek.Thursday  => "Quinta-feira",
-        DayOfWeek.Friday    => "Sexta-feira",
-        DayOfWeek.Saturday  => "Sábado",
-        DayOfWeek.Sunday    => "Domingo",
+        DayOfWeek.Thursday => "Quinta-feira",
+        DayOfWeek.Friday => "Sexta-feira",
+        DayOfWeek.Saturday => "Sábado",
+        DayOfWeek.Sunday => "Domingo",
         _ => day.ToString()
     };
 }
