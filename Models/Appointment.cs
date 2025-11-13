@@ -12,13 +12,13 @@ public class Appointment
     [DataType(DataType.Date)]
     [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
     public DateOnly Date { get; set; }
-    
-    [DataType(DataType.Date)]
-    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+
+    [DataType(DataType.Time)]
+    [DisplayFormat(DataFormatString = "{0:HH\\:mm}", ApplyFormatInEditMode = true)]
     public TimeOnly StartTime { get; set; }
-    
-    [DataType(DataType.Date)]
-    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+
+    [DataType(DataType.Time)]
+    [DisplayFormat(DataFormatString = "{0:HH\\:mm}", ApplyFormatInEditMode = true)]
     public TimeOnly EndTime { get; set; }
     
     // Campo legado (mantém compatibilidade)

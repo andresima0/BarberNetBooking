@@ -9,7 +9,7 @@ public class ShopInfo
     [StringLength(100)]
     public string? SiteName { get; set; }
 
-    // caminho relativo em wwwroot (wwwroot/logo_dark.png")
+    // caminho relativo em wwwroot (wwwroot/uploads/branding/logo.png")
     [StringLength(512)]
     public string? LogoPath { get; set; }
     

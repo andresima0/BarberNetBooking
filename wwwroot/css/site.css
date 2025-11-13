@@ -70,11 +70,19 @@ main.container {
     text-decoration: none;
 }
 
-.logo {
-    width: 52px;
-    height: auto;
-    display: block;
-    background: transparent;
+.logo{
+    height: 84px !important; 
+    width: auto !important;
+    display: inline-block; 
+    border-radius: 0 !important;
+    background: transparent !important; 
+    padding: 0 !important; 
+    box-shadow: none !important;
+}
+
+@media (min-width: 1024px){
+    .logo{ height: 96px !important; }
+    .topbar .topbar-inner{ min-height: 112px; }
 }
 
 .brand-name {
@@ -589,3 +597,111 @@ details form .btn {
         max-width: 90vw;
     }
 }
+
+/* ===== THEME: LIGHT (override de variáveis) ===== */
+:root[data-theme="light"]{
+    /* base neutra */
+    --bg:   #f5f5f3;
+    --bg-2: #faf9f7;
+    --card: #faf9f7;
+    --border: #e5e7eb;
+    --muted: #475569;
+    --text: #0f172a;
+
+    /* botões: vermelho escuro */
+    --accent: #b91c1c;   /* Red-700 */
+    --accent-2: #7f1d1d; /* Red-900 */
+    --danger: #b91c1c;
+}
+
+/* Header e containers no light */
+:root[data-theme="light"] .topbar{
+    background: rgba(255,255,255,.9);
+    backdrop-filter: saturate(120%) blur(8px);
+    border-bottom: 1px solid var(--border);
+}
+:root[data-theme="light"] .card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 20px rgba(2,8,23,.06);
+}
+:root[data-theme="light"] body{
+    background: linear-gradient(135deg, var(--bg), var(--bg-2));
+    color: var(--text);
+}
+
+/* Tabs / botões no light */
+:root[data-theme="light"] .tabs a,
+:root[data-theme="light"] .admin-tabs a{
+    background: linear-gradient(180deg, #ffffff, #f5f6f9);
+    color: var(--text);
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 6px 16px rgba(2,8,23,.06);
+}
+:root[data-theme="light"] .tabs a.active,
+:root[data-theme="light"] .admin-tabs a.active{
+    background: linear-gradient(90deg, var(--accent), #7f1d1d);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 6px 18px rgba(185, 28, 28, .35);
+}
+
+/* ===== Botões vermelhos no LIGHT MODE ===== */
+:root[data-theme="light"] .btn{
+    background: linear-gradient(90deg, var(--accent), #7f1d1d) !important; /* #b91c1c -> #7f1d1d */
+    border: none;
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(185, 28, 28, .25);
+}
+
+:root[data-theme="light"] .btn:hover{
+    filter: brightness(1.05);
+}
+
+:root[data-theme="light"] .btn:active{
+    transform: translateY(1px);
+    box-shadow: 0 3px 10px rgba(185, 28, 28, .25);
+}
+
+/* Opcional: versão 'danger' ainda mais escura */
+:root[data-theme="light"] .btn-danger{
+    background: linear-gradient(90deg, #991b1b, #7f1d1d) !important;
+}
+
+/* Inputs no light */
+:root[data-theme="light"] input,
+:root[data-theme="light"] select,
+:root[data-theme="light"] textarea{
+    background: #fff;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+:root[data-theme="light"] input::placeholder,
+:root[data-theme="light"] textarea::placeholder{
+    color: #94a3b8;
+}
+
+/* Tabelas no light */
+:root[data-theme="light"] .tbl th,
+:root[data-theme="light"] .tbl td{
+    border-bottom: 1px solid var(--border);
+}
+:root[data-theme="light"] .tbl tr:hover{
+    background: rgba(2, 8, 23, .03);
+}
+
+/* Footer no light */
+:root[data-theme="light"] .site-footer{
+    background: #faf9f7;
+    color: #475569;
+}
+
+/* Botão de alternância de tema */
+.theme-toggle{
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border-radius: 10px; cursor: pointer;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text); font-weight: 600;
+}
+.theme-toggle:hover{ filter: brightness(1.05); }
+.theme-toggle .icon{ font-size: 18px; line-height: 1; }
